@@ -25,7 +25,7 @@ pool.connect()
   .catch(err => console.error("❌ Error al conectar a la BD:", err));
 
 // Ruta para registrar un cliente
-app.post("/api/registro-clientes", async (req, res) => {
+app.post("/registro-clientes", async (req, res) => {
   try {
     const { nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaDeNacimiento, rfc, membresia } = req.body;
 
