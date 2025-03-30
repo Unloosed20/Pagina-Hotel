@@ -14,7 +14,7 @@ import ReservaHabitacion from "./components/ReservaHabitacion";
 import UsuarioClientes from  "./components/UsuarioClientes";
 function App() {
   return (
-    <Router basename="/">
+    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/registro-clientes" element={<RegistroClientes />} />
