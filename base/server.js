@@ -1,24 +1,19 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
 const { Pool } = require("pg");
 
-const app = express();
-const port = process.env.PORT || 5000;
-
-// Configuración de CORS
-app.use(cors());
-app.use(bodyParser.json());
-
-// Configuración de PostgreSQL
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASS,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Esto es necesario para Railway
+  },
 });
+
+pool.connect()
+  .then(() => console.log("Conectado a PostgreSQL en Railway"))
+  .catch(err => console.error(" Error al conectar a la BD", err));
+
+module.exports = pool;
+
 
 // Ruta para registrar un cliente
 app.post("/api/registro-clientes", async (req, res) => {
