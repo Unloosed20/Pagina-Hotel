@@ -14,7 +14,7 @@ app.use(express.json()); // Importante para recibir JSON en req.body
 
 // Configuración de PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL, // Usa la conexión completa
   ssl: {
     rejectUnauthorized: false, // Necesario para Railway
   },
