@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '', // Importante para despliegue con HashRouter
+  base: './', // Importante para despliegue con HashRouter
   build: {
     outDir: "dist", // Asegura que el directorio de salida sea correcto
   },
