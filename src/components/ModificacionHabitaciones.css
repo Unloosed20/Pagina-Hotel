@@ -1,0 +1,131 @@
+body {
+  font-family: 'Georgia', serif;
+  background-color: #FFF8E7; /* Crema claro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.contenedor {
+  background-color: #F5F5DC; /* Beige claro */
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 800px;
+  text-align: center;
+}
+
+h1 {
+  color: #D4AF37; /* Dorado clásico */
+  font-size: 32px;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 20px;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #FFF8E7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #D4AF37;
+  text-align: center;
+  color: #5A4A42;
+}
+
+th {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  font-size: 18px;
+}
+
+tr:nth-child(even) {
+  background-color: #F9F1D3;
+}
+
+.boton-editar, .boton-guardar, .boton-cancelar {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.boton-editar {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+}
+
+.boton-editar:hover {
+  background-color: #B38B2D;
+}
+
+.boton-guardar {
+  background-color: #D4AF37;
+  color: white;
+  margin-right: 10px;
+  margin-top: 05%;
+}
+
+.boton-guardar:hover {
+  background-color: #218838;
+}
+
+.boton-cancelar {
+  background-color: #D4AF37;
+  color: white;
+}
+
+.boton-cancelar:hover {
+  background-color: #C82333;
+}
+
+.formulario-edicion {
+  margin-top: 20px;
+  background-color: #FFF8E7;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.formulario-edicion h3 {
+  color: #D4AF37;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-size: 16px;
+  color: #5A4A42;
+  margin-top: 10px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #D4AF37;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #FFF8E7;
+  color: #5A4A42;
+}
+
+input::placeholder {
+  color: #A89B8C;
+}
+
+  

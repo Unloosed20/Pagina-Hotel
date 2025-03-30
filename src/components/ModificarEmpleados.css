@@ -1,0 +1,71 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7; /* Crema claro */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.employee-container {
+    background-color: #F5F5DC; /* Beige claro */
+    border-radius: 15px;
+    padding: 30px;
+    width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.employee-header h1 {
+    color: #D4AF37; /* Dorado clásico */
+    font-size: 36px;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 20px;
+}
+
+.employee-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.employee-list ul li {
+    font-size: 16px;
+    color: #5A4A42; /* Color de texto marrón oscuro */
+    margin: 10px 0;
+    padding: 12px;
+    border: 1px solid #D4AF37;
+    border-radius: 8px;
+    background-color: #FFF8E7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.employee-actions button {
+    width: 100px;
+    padding: 10px;
+    background-color: #D4AF37; /* Dorado clásico */
+    border: none;
+    color: #FFF8E7; /* Texto crema claro */
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.employee-actions button:hover {
+    background-color: #B38B2D; /* Dorado oscuro */
+}
+
+.employee-actions button.delete {
+    background-color: #D4AF37; /* Rojo para eliminar */
+    color: white;
+}
+
+.employee-actions button.delete:hover {
+    background-color: #FF5252; /* Rojo más oscuro */
+}
+

@@ -1,0 +1,54 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7; /* Crema claro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .bg-cream {
+    background-color: #FFF8E7;
+  }
+  
+  .bg-beige {
+    background-color: #F5F5DC;
+  }
+  
+  .text-gold {
+    color: #D4AF37;
+  }
+  
+  .input-field {
+    width: 80%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #D4AF37;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #FFF8E7;
+    color: #5A4A42;
+  }
+  
+  .input-field::placeholder {
+    color: #A89B8C;
+  }
+  
+  .submit-button {
+    width: 80%;
+    padding: 12px;
+    background-color: #D4AF37;
+    border: none;
+    color: #FFF8E7;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .submit-button:hover {
+    background-color: #B38B2D;
+  }
+  

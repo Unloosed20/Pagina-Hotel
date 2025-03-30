@@ -1,0 +1,70 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7; /* Crema claro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.profile-container {
+    background-color: #F5F5DC; /* Beige claro */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+    border: 2px solid #D4AF37;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-header h1 {
+    color: #D4AF37; /* Dorado clásico */
+    font-size: 36px;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 20px;
+}
+
+.profile-info p,
+.profile-membership p,
+.profile-reservations ul li {
+    font-size: 16px;
+    color: #5A4A42;
+    margin: 10px 0;
+}
+
+.profile-membership, .profile-reservations {
+    text-align: center;
+}
+
+.profile-reservations ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.profile-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.profile-actions button {
+    background-color: #D4AF37;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #FFF8E7;
+    cursor: pointer;
+    margin: 5px;
+    width: 200px;
+}
+
+.profile-actions button:hover {
+    background-color: #B38B2D;
+}

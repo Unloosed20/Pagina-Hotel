@@ -1,0 +1,104 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7; /* Crema claro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.turnos-container {
+    background-color: #F5F5DC; /* Beige claro */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    text-align: center;
+}
+
+.turnos-container h1 {
+    color: #D4AF37; /* Dorado clásico */
+    font-size: 36px;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #D4AF37;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    color: #5A4A42;
+}
+
+th {
+    background-color: #D4AF37;
+    color: #FFF8E7;
+}
+
+button {
+    padding: 8px 12px;
+    background-color: #D4AF37;
+    border: none;
+    color: #FFF8E7;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #B38B2D;
+}
+
+/* Estilos para el formulario de asignación */
+.form-container {
+    background-color: #F5F5DC;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 50%;
+    margin: 20px auto;
+    text-align: left;
+}
+
+.form-container h3 {
+    color: #D4AF37;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
+    color: #5A4A42;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #D4AF37;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #FFF8E7;
+    color: #5A4A42;
+}
+
+input::placeholder {
+    color: #A89B8C;
+}
+
+/* Ocultar formulario cuando no se usa */
+.hidden {
+    display: none;
+}
+

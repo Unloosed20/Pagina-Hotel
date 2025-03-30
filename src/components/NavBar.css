@@ -1,0 +1,25 @@
+.header {
+    background-color: #5A4A42;
+    padding: 20px;
+    color: #FFF8E7;
+    font-size: 24px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  /* Contenedor para alinear título y botones */
+  .header-container {
+    display: flex;
+    justify-content: space-between; /* Alinea título y botones */
+    align-items: center; /* Centra verticalmente */
+    width: 100%;
+  }
+  
+  /* Botones alineados horizontalmente */
+  .nav-buttons {
+    display: flex;
+    gap: 15px; /* Espacio entre botones */
+  }

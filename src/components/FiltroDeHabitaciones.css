@@ -1,0 +1,111 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7; /* Crema claro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.filter-container {
+    background-color: #F5F5DC; /* Beige claro */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 500px;  /* Ancho aumentado */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.filter-container h1 {
+    color: #D4AF37; /* Dorado clásico */
+    font-size: 32px;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 20px;
+}
+
+.filter-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.filter-container select,
+.filter-container input {
+    width: 90%; /* Mayor ancho */
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #D4AF37;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #FFF8E7;
+    color: #5A4A42;
+    text-align: center;
+}
+
+.filter-container select::placeholder,
+.filter-container input::placeholder {
+    color: #A89B8C;
+}
+
+.filter-container button {
+    width: 90%;
+    padding: 12px;
+    background-color: #D4AF37;
+    border: none;
+    color: #FFF8E7;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.filter-container button:hover {
+    background-color: #B38B2D;
+}
+
+.filter-results {
+    margin-top: 20px;
+    width: 90%;
+    text-align: left;
+}
+
+.filter-results h2 {
+    font-size: 20px;
+    color: #5A4A42;
+    margin-bottom: 10px;
+}
+
+.filter-results ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.filter-results ul li {
+    font-size: 16px;
+    color: #5A4A42;
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #D4AF37;
+    border-radius: 8px;
+    background-color: #FFF8E7;
+}
+
+.filter-container .back-link {
+    color: #D4AF37;
+    text-decoration: none;
+    display: block;
+    margin-top: 20px;
+}
+
+.filter-container .back-link:hover {
+    text-decoration: underline;
+}
+
+
+
