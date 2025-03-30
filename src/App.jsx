@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+
 import Login from "./components/Login";
 import RegistroClientes from "./components/RegistroClientes";
 import PerfilCliente from "./components/PerfilCliente"
@@ -13,7 +14,7 @@ import ReservaHabitacion from "./components/ReservaHabitacion";
 import UsuarioClientes from  "./components/UsuarioClientes";
 function App() {
   return (
-    <Router>
+    <Router basename="/">
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/registro-clientes" element={<RegistroClientes />} />
