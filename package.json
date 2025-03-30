@@ -1,7 +1,7 @@
 {
   "name": "hotel",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "vite": "vite",
@@ -10,15 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-  "cors": "^2.8.5",
-  "dotenv": "^16.4.7",
-  "express": "^4.21.2",
-  "pg": "^8.14.1",
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0",
-  "react-router-dom": "^6.23.0"
-},
-
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.14.1",
+    "react": "^18.2.0",
+    "react-datepicker": "^8.2.1",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0"
+  },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
@@ -31,3 +31,4 @@
     "vite": "^6.2.0"
   }
 }
+
