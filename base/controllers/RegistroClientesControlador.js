@@ -1,47 +1,38 @@
-const pool = require("../config/db");
-const bcrypt = require("bcrypt");
+const pool = require("../db");
+const bcrypt = require("bcryptjs");
 
-const registrarCliente = async (req, res) => {
+const registrarClienteYUsuario = async (req, res) => {
+  const { nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaDeNacimiento, rfc, membresia, username, password } = req.body;
+
   try {
-    const { nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaDeNacimiento, rfc, username, password } = req.body;
-
-    // Validar si el username ya existe
-    const usuarioExistente = await pool.query(
-      `SELECT id FROM usuarios WHERE username = $1`, [username]
-    );
-
-    if (usuarioExistente.rows.length > 0) {
-      return res.status(400).json({ error: "El nombre de usuario ya está en uso" });
+    // Verificar si el email ya está registrado
+    const checkUser = await pool.query("SELECT * FROM clientes WHERE email = $1", [email]);
+    if (checkUser.rows.length > 0) {
+      return res.status(400).json({ error: "El email ya está registrado" });
     }
 
-    // Encriptar contraseña
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insertar usuario
+    // Insertar usuario en la tabla usuarios (Rol 3 = Cliente)
     const usuarioResult = await pool.query(
-      `INSERT INTO usuarios (username, password, id_rol) 
-       VALUES ($1, $2, 3) RETURNING id`,
+      "INSERT INTO usuarios (nombre_usuario, contraseña, role_id) VALUES ($1, $2, 3) RETURNING id",
       [username, hashedPassword]
     );
 
     const usuarioId = usuarioResult.rows[0].id;
 
-    // Insertar cliente
-    const fechaNacimientoFormatted = new Date(fechaDeNacimiento).toISOString().split("T")[0];
-    const clienteResult = await pool.query(
-      `INSERT INTO clientes 
-        (usuario_id, nombre, apellido_paterno, apellido_materno, email, telefono, direccion, nacionalidad, fecha_nacimiento, rfc) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [usuarioId, nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaNacimientoFormatted, rfc]
+    // Insertar cliente en la tabla clientes
+    await pool.query(
+      "INSERT INTO clientes (usuario_id, nombre, apellido_paterno, apellido_materno, email, telefono, direccion, nacionalidad, fecha_nacimiento, rfc, membresia_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+      [usuarioId, nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaDeNacimiento, rfc, membresia || null]
     );
 
-    res.status(201).json({ message: "✅ Cliente registrado", cliente: clienteResult.rows[0] });
-
+    res.status(201).json({ message: "Cliente y usuario registrados exitosamente" });
   } catch (error) {
-    console.error("❌ Error al registrar cliente:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
+    console.error(error);
+    res.status(500).json({ error: "Error en el servidor" });
   }
 };
 
-module.exports = { registrarCliente };
+module.exports = { registrarClienteYUsuario };

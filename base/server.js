@@ -1,50 +1,24 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
-const { Pool } = require("pg");
+require("dotenv").config();
 
-const app = express();
-const port = process.env.PORT || 5000;
-
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.json()); // Importante para recibir JSON en req.body
-
-// Configuración de PostgreSQL
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Usa la conexión completa
-  ssl: {
-    rejectUnauthorized: false, // Necesario para Railway
-  },
-});
+const pool = require("./db");
 
 pool.connect()
-  .then(() => console.log("✅ Conectado a PostgreSQL en Railway"))
-  .catch(err => console.error("❌ Error al conectar a la BD:", err));
+  .then(() => console.log("✅ Conectado a la base de datos en Railway"))
+  .catch((err) => console.error("❌ Error de conexión:", err));
 
-// Ruta para registrar un cliente
-app.post("/registro-clientes", async (req, res) => {
-  try {
-    const { nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaDeNacimiento, rfc, membresia } = req.body;
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-    const query = `
-      INSERT INTO clientes (nombre, apellido_paterno, apellido_materno, email, telefono, direccion, nacionalidad, fecha_nacimiento, rfc, membresia_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
+const PORT = process.env.PORT || 5000;
 
-    const values = [nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, nacionalidad, fechaDeNacimiento, rfc, membresia || null];
+// Importar rutas
+const registroRoutes = require("./routes/RegistroClientes");
 
-    const result = await pool.query(query, values);
-    res.status(201).json({ message: "✅ Cliente registrado", cliente: result.rows[0] });
+app.use("/api", registroRoutes);
 
-  } catch (error) {
-    console.error("❌ Error al registrar cliente:", error);
-    res.status(500).json({ error: "Error en el servidor" });
-  }
-});
-
-// Iniciar el servidor
-app.listen(port, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
