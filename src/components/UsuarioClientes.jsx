@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
-import "./RegistroUsuario.css";
+import "./UsuarioClientes.css";
 
 const RegistroUsuario = () => {
   const [formData, setFormData] = useState({
