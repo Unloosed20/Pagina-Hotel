@@ -74,7 +74,11 @@ const UsuarioClientes = () => {
           },
         ]);
 
-      if (clienteError) throw clienteError;
+      if (clienteError) {
+        // Si hay un error en la inserción del cliente, eliminamos el usuario
+        await supabase.from("usuarios").delete().eq("id", usuarioId);
+        throw clienteError;
+      }
 
       alert("Cuenta creada exitosamente");
       sessionStorage.removeItem("clienteData");
