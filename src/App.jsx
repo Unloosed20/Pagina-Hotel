@@ -12,6 +12,9 @@ import RegistroEmpleados from "./components/RegistroEmpleados";
 import TurnosEmpleados from "./components/TurnosEmpleados";
 import ReservaHabitacion from "./components/ReservaHabitacion";
 import UsuarioClientes from  "./components/UsuarioClientes";
+import AdminDashboard from "./components/AdminDashboard";
+import GestionClientes from "./components/GestionClientes";
+import GestionEmpleados from "./components/GestionEmpleados";
 function App() {
   return (
     <Router>
@@ -28,6 +31,9 @@ function App() {
         <Route path="/turnos-empleados" element={<TurnosEmpleados />} />
         <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
         <Route path="/usuario-clientes" element={<UsuarioClientes />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/gestion-clientes" element={<GestionClientes />} />
+        <Route path="/gestion-empleados" element={<GestionEmpleados />} />
       </Routes>
     </Router>
   );

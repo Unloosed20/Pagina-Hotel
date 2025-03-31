@@ -37,10 +37,13 @@ const Login = () => {
         return;
       }
 
-      // Verificar si el rol es 3 (cliente)
-      if (data.role_id !== 3) {
-        setError("Acceso denegado. No tienes permisos para acceder.");
-        return;
+      // Redirigir según el rol
+      if (data.role_id === 3) {
+        navigate("/pagina-principal"); // Cliente
+      } else if (data.role_id === 1) {
+        navigate("/admin-dashboard"); // Administrador
+      } else {
+        setError("Acceso denegado. No tienes permisos.");
       }
 
       // Si las credenciales son correctas y el rol es 3, redirige a la página principal
