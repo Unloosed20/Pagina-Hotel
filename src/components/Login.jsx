@@ -46,9 +46,6 @@ const Login = () => {
         setError("Acceso denegado. No tienes permisos.");
       }
 
-      // Si las credenciales son correctas y el rol es 3, redirige a la página principal
-      navigate("/pagina-principal");
-
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       setError("Hubo un error al intentar iniciar sesión. Intenta nuevamente.");
