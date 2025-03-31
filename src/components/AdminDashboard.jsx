@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -16,16 +17,14 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
-        Panel de Administración
-      </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-4xl">
+    <div className="admin-dashboard">
+      <h1>Panel de Administración</h1>
+      <div className="button-container">
         {sections.map((section) => (
           <button
             key={section.path}
             onClick={() => navigate(section.path)}
-            className="bg-blue-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 text-lg"
+            className="dashboard-button"
           >
             {section.name}
           </button>
