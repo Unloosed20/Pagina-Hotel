@@ -1,152 +1,143 @@
 
 body {
-    font-family: 'Georgia', serif;
-    background-color: #FFF8E7;
-    margin: 0;
-    padding: 0;
-  }
- 
-  .pagina-principal {
-width: 100%; 
-height: 100vh;
-overflow: auto; }
-  
+  font-family: 'Georgia', serif;
+  background-color: #FFF8E7;
+  margin: 0;
+  padding: 0;
+}
 
-  
-  .hero-title {
-    font-size: 30px;
-    font-weight: bold;
-  }
+.pagina-principal {
+  width: 100%; 
+  height: 100vh;
+  overflow: auto; 
+}
 
-  .hero-subtitle {
-    font-size: 20px;
-  }
-  
-  .hero {
-    position: relative;
-    height: 100vh; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: url('../assets/imagenprincipal.jpg') no-repeat center center/cover;
-    box-sizing: border-box;
-  }
-  
-  
-  /* Fondo oscuro transparente sobre la imagen */
-  .hero-overlay {
-    background: rgba(0, 0, 0, 0.6); /* Fondo oscuro con transparencia */
-    padding: 50px; /* Espaciado interior */
-    border-radius: 10px;
-    color: #FFF8E7;
-    text-align: center;
-    max-width: 60%;
-    position: absolute; /* Para superponer sobre la imagen */
-    top: 50%; /* Lo posicionamos a la mitad */
-    left: 50%;
-    transform: translate(-50%, -20%); /* Centra el cuadro exactamente */
-    z-index: 10;
-  }
-  
-  
-  /* Contenedor de los botones */
-  .cta-container {
-    display: flex;
-    justify-content:center;
-    align-items: center;
-    gap: 20px; /* Espaciado entre botones */
-    margin-top: 20px;
-  }
-  
-  /* Mejor diseño de botones */
-  .cta-button {
-    background-color: #D4AF37;
-    color: white;
-    padding: 25px 30px;
-    font-size: 20px;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .cta-button:hover {
-    background-color: #b99630;
-  }
-  
-  .about-us {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 50px;
-    background-color: #F5F5DC;
-  }
-  
-  .content {
-    width: 50%;
-    text-align: left;
-    padding-right: 20px;
-  }
-  
-  .image-container {
-    width: 50%;
-  }
-  
-  .image-container img {
-    width: 100%;
-    border-radius: 10px;
-  }
-  
-  .facilities {
-    padding: 50px;
-  }
-  
-  .facilities h2 {
-    font-size: 36px;
-    color: #D4AF37;
-    margin-bottom: 20px;
-  }
-  
-  .facilities-grid {
-    display: flex;
-    justify-content: center;
-    align-items: stretch; /* Asegura que todos los elementos tengan la misma altura */
-    gap: 20px;
-    flex-wrap: wrap; /* Permite que los elementos se ajusten en pantallas pequeñas */
+.hero-title {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+}
+
+.hero {
+  position: relative;
+  height: 100vh; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('../assets/imagenprincipal.jpg') no-repeat center center/cover;
+  box-sizing: border-box;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 50px;
+  border-radius: 10px;
+  color: #FFF8E7;
+  text-align: center;
+  max-width: 90%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+  z-index: 10;
+}
+
+.cta-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.cta-button {
+  background-color: #D4AF37;
+  color: white;
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #b99630;
+}
+
+.about-us {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  background-color: #F5F5DC;
+}
+
+.content {
+  width: 90%;
+  text-align: center;
+}
+
+.image-container {
+  width: 90%;
+}
+
+.image-container img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.facilities {
+  padding: 30px;
+}
+
+.facilities h2 {
+  font-size: 28px;
+  color: #D4AF37;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.facilities-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
 }
 
 .facility-item {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 15px;
-    border-radius: 10px;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .facility-item img {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-    border-radius: 10px;
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .facility-item p {
-    font-size: 18px;
-    margin-top: 10px;
-    color: #D4AF37; /* Letras en dorado */
-    font-weight: bold;
-    background: none; /* Elimina cualquier fondo blanco */
+  font-size: 16px;
+  margin-top: 10px;
+  color: #D4AF37;
+  font-weight: bold;
 }
 
-
-  
-  .footer {
-    background-color: #5A4A42;
-    color: #FFF8E7;
-    padding: 20px;
-    text-align: center;
-  }
-  
+.footer {
+  background-color: #5A4A42;
+  color: #FFF8E7;
+  padding: 15px;
+  text-align: center;
+}
