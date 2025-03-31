@@ -46,10 +46,10 @@ const RegistroClientes = () => {
           <input type="text" name="rfc" placeholder="RFC" value={formData.rfc} onChange={handleChange} className="input-field" required />
 
           <select name="membresia" value={formData.membresia} onChange={handleChange} className="input-field">
-            <option value="">Sin membresía</option>
-            <option value="1">Básica</option>
-            <option value="2">Premium</option>
-            <option value="3">VIP</option>
+            <option value="1">Sin membresía</option>
+            <option value="2">Básica</option>
+            <option value="3">Premium</option>
+            <option value="4">VIP</option>
           </select>
 
           <div className="col-span-1 md:col-span-2 flex justify-center">
