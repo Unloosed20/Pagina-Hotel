@@ -23,6 +23,10 @@ const RegistroClientes = () => {
   };
 
   const handleNext = () => {
+    const requestData = {
+      ...formData,
+      membresia: formData.membresia === "" ? null : parseInt(formData.membresia, 10),
+    };
     // Guardar datos temporalmente en sessionStorage
     sessionStorage.setItem("clienteData", JSON.stringify(formData));
     navigate("/usuario-clientes"); // Redirige a la interfaz de usuario
