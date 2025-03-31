@@ -119,5 +119,5 @@ const RegistroUsuario = () => {
   );
 };
 
-export default RegistroUsuario;
+export default UsuarioClientes;
 
