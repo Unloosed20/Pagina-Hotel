@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
 import "./UsuarioClientes.css";
 
-const RegistroUsuario = () => {
+const UsuarioClientes = () => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
