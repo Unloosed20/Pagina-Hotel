@@ -6,7 +6,11 @@ const pool = require("./db");
 
 pool.connect()
   .then(() => console.log("✅ Conectado a la base de datos en Railway"))
-  .catch((err) => console.error("❌ Error de conexión:", err));
+  .catch((err) => {
+    console.error("❌ Error de conexión:", err);
+    console.log("Detalles del error:", err.stack);
+  });
+
 
 const app = express();
 app.use(cors());
