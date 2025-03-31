@@ -25,7 +25,7 @@ const RegistroClientes = () => {
   const handleNext = () => {
     // Guardar datos temporalmente en sessionStorage
     sessionStorage.setItem("clienteData", JSON.stringify(formData));
-    navigate("/registro-usuario"); // Redirige a la interfaz de usuario
+    navigate("/usuario-clientes"); // Redirige a la interfaz de usuario
   };
 
   return (
