@@ -18,13 +18,6 @@ body {
   box-sizing: border-box;
 }
 
-.title {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #D4AF37;
-  font-family: 'Playfair Display', serif;
-}
-
 /* Botón principal */
 .add-btn {
   background-color: #D4AF37;
@@ -43,12 +36,13 @@ body {
   background-color: #B38B2D;
 }
 
-/* Tabla */
+/* Contenedor de tabla para evitar desbordes */
 .table-container {
   width: 100%;
-  overflow-x: auto; /* Permite desplazamiento horizontal si es necesario */
+  overflow-x: auto; /* Permite scroll si la tabla es más ancha que la pantalla */
 }
 
+/* Tabla */
 .client-table {
   width: 100%;
   border-collapse: collapse;
@@ -62,12 +56,15 @@ body {
   text-align: center;
   background-color: #FFF8E7;
   color: #5A4A42;
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
 .client-table th {
   background-color: #D4AF37;
   color: white;
 }
+
+
 
 /* Botones de acción */
 .edit-btn, .delete-btn {
@@ -88,99 +85,22 @@ body {
   color: white;
 }
 
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.modal-content {
-  background: #F5F5DC;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.modal-content h2 {
-  color: #D4AF37;
-  font-size: 24px;
-  font-family: 'Playfair Display', serif;
-  margin-bottom: 15px;
-}
-
-.modal-content form input,
-.modal-content form select {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #D4AF37;
-  border-radius: 8px;
-  font-size: 16px;
-  background-color: #FFF8E7;
-  color: #5A4A42;
-}
-
-.modal-content button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.modal-content button[type="submit"] {
-  background-color: #D4AF37;
-  color: #FFF8E7;
-}
-
-.modal-content button[type="submit"]:hover {
-  background-color: #B38B2D;
-}
-
-.modal-content button[type="button"] {
-  background-color: #6c757d;
-  color: white;
-}
-
-.modal-content button[type="button"]:hover {
-  background-color: #5a6268;
-}
-
-/* RESPONSIVE */
+/* RESPONSIVE: Mantiene formato en móviles */
 @media (max-width: 768px) {
   .container {
     padding: 15px;
   }
 
   .table-container {
-    overflow-x: auto; /* Permite desplazamiento en caso de ser necesario */
+    overflow-x: auto;
   }
 
   .client-table {
-    min-width: 600px; /* Mantiene estructura */
+    min-width: 600px; /* Mantiene la estructura */
   }
 
   .client-table th, .client-table td {
-    font-size: 14px; /* Ajusta tamaño */
+    font-size: 14px;
     padding: 8px;
-  }
-
-  .modal-content {
-    max-width: 90%;
   }
 }
