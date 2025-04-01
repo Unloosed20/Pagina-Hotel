@@ -189,7 +189,7 @@ const GestionEmpleados = () => {
             <form onSubmit={handleSubmit}>
               <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
               <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" value={formData.apellido_paterno} onChange={handleChange} required />
-              <input type="text" name="apellido_materno" placeholder="Apellido materno" value={formData.apellido_paterno} onChange={handleChange} required />
+              <input type="text" name="apellido_materno" placeholder="Apellido materno" value={formData.apellido_materno} onChange={handleChange} required />
               <input type="text" name="domicilio" placeholder="Domicilio" value={formData.domicilio} onChange={handleChange} required />
               <input type="text" name="curp" placeholder="CURP" value={formData.curp} onChange={handleChange} required />
               <input type="text" name="rfc" placeholder="RFC" value={formData.rfc} onChange={handleChange} required />
