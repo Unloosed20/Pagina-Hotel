@@ -99,15 +99,16 @@ body {
 
 @media (max-width: 468px) {
   .table-container {
-    width: 100%; /* Asegurar que ocupa toda la pantalla */
-    overflow-x: hidden;
-    padding: 0; /* Evitar desplazamientos innecesarios */
+    width: 100%; /* Ocupa toda la pantalla */
+    overflow-x: auto; /* Permite scroll horizontal */
+    padding: 0; /* Evita desplazamientos innecesarios */
   }
 
   .client-table {
-    display: block; /* Permite que overflow-x funcione correctamente */
-    min-width: 100%; /* Se ajusta mejor al contenedor */
-    overflow-x: auto; /* Para permitir el desplazamiento horizontal */
+    /* Usamos el display por defecto de la tabla para mantener su estructura */
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 100%; /* Se ajusta al contenedor */
   }
 
   .client-table th, .client-table td {
