@@ -19,42 +19,37 @@ body {
   text-align: center; /* Centra elementos internos */
 }
 
-.input-field {
-  width: 100%; /* Evita que el input ocupe todo el ancho */
+.input-field, .submit-button {
+  width: 100%;
   padding: 10px;
-  margin: 8px auto; /* Centra el input */
   border: 1px solid #D4AF37;
   border-radius: 6px;
   font-size: 14px;
   background-color: #FFF8E7;
   color: #5A4A42;
-  box-sizing: border-box;
-  display: block; /* Asegura que el margin auto funcione */
-}
-
-.input-field::placeholder {
-  color: #A89B8C;
+  box-sizing: border-box; /* Hace que ancho total incluya el borde y padding */
+  display: block;
+  margin: 8px auto;
 }
 
 .submit-button {
-  width: 340%; /* Igual al input */
-  padding: 10px;
   background-color: #D4AF37;
-  border: none;
   color: #FFF8E7;
-  border-radius: 6px;
-  cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  margin: 10px auto; /* Centra el botón */
-  box-sizing: border-box;
-  display: block; /* Permite margin auto */
-  border: 1px solid #D4AF37;
+  cursor: pointer;
 }
 
 .submit-button:hover {
   background-color: #B38B2D;
 }
+
+
+.input-field::placeholder {
+  color: #A89B8C;
+}
+
+
 
 /* Responsividad */
 @media (max-width: 768px) {
