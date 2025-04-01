@@ -7,7 +7,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  overflow-x: hidden; /* Evita desbordes */
+  overflow-x: hidden; /* Evita desbordes en móviles */
 }
 
 .container {
@@ -36,12 +36,14 @@ body {
   background-color: #B38B2D;
 }
 
-/* Contenedor de tabla para evitar desbordes */
+/* Contenedor de la tabla */
 .table-container {
   width: 100%;
-  overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+  overflow-x: auto; /* Permite scroll horizontal si es necesario */
   margin: 0 auto; /* Centra la tabla */
-  padding: 0 10px; /* Evita que el contenido toque los bordes */
+  padding: 0 5px; /* Agrega un pequeño margen para evitar desbordes */
+  display: flex;
+  justify-content: center;
 }
 
 /* Tabla */
@@ -49,7 +51,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  min-width: 600px; /* Evita que la tabla se haga demasiado pequeña */
+  min-width: 600px; /* Evita que la tabla se encoja demasiado */
 }
 
 .client-table th, .client-table td {
@@ -67,13 +69,13 @@ body {
   color: white;
 }
 
-/* Asegurar que el nombre del cliente sea visible */
+/* Asegurar que el nombre del cliente no se salga */
 .client-table td:first-child {
   font-weight: bold;
   color: #000;
-  max-width: 200px; /* Evita que se salga de la pantalla */
+  max-width: 250px; /* Ajuste de ancho */
   overflow: hidden;
-  text-overflow: ellipsis; /* Muestra "..." si el nombre es muy largo */
+  text-overflow: ellipsis; /* Muestra "..." si es muy largo */
 }
 
 /* Botones de acción */
@@ -98,12 +100,13 @@ body {
 /* RESPONSIVE: Mantiene formato en móviles */
 @media (max-width: 768px) {
   .container {
-    padding: 15px;
+    padding: 10px;
   }
 
   .table-container {
     width: 100%;
-    overflow-x: auto; /* Permite scroll si la tabla es más ancha */
+    overflow-x: auto;
+    padding: 0 10px; /* Añade un margen interno para evitar desbordes */
   }
 
   .client-table {
