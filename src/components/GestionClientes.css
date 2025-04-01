@@ -7,7 +7,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  overflow-x: hidden; /* Previene desbordes */
+  overflow-x: hidden; /* Evita desbordes */
 }
 
 .container {
@@ -39,7 +39,9 @@ body {
 /* Contenedor de tabla para evitar desbordes */
 .table-container {
   width: 100%;
-  overflow-x: auto; /* Permite scroll si la tabla es más ancha que la pantalla */
+  overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+  margin: 0 auto; /* Centra la tabla */
+  padding: 0 10px; /* Evita que el contenido toque los bordes */
 }
 
 /* Tabla */
@@ -56,15 +58,23 @@ body {
   text-align: center;
   background-color: #FFF8E7;
   color: #5A4A42;
-  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  white-space: nowrap; /* Evita saltos de línea inesperados */
 }
 
+/* Encabezados de tabla */
 .client-table th {
   background-color: #D4AF37;
   color: white;
 }
 
-
+/* Asegurar que el nombre del cliente sea visible */
+.client-table td:first-child {
+  font-weight: bold;
+  color: #000;
+  max-width: 200px; /* Evita que se salga de la pantalla */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Muestra "..." si el nombre es muy largo */
+}
 
 /* Botones de acción */
 .edit-btn, .delete-btn {
@@ -92,7 +102,8 @@ body {
   }
 
   .table-container {
-    overflow-x: auto;
+    width: 100%;
+    overflow-x: auto; /* Permite scroll si la tabla es más ancha */
   }
 
   .client-table {
