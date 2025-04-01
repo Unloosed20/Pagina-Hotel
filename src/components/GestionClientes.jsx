@@ -154,61 +154,63 @@ const GestionClientes = () => {
 
   return (
     <div className="container">
-      <h1 className="title">Gestión de Clientes</h1>
-      <button className="add-btn" onClick={() => openModal()}>
-        Agregar Cliente
-      </button>
-      <table className="client-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Usuario</th>
-            <th>Acciones</th>
+  <h1 className="title">Gestión de Clientes</h1>
+  <button className="add-btn" onClick={() => openModal()}>
+    Agregar Cliente
+  </button>
+  <div className="scroll-container">
+    <table className="client-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Usuario</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {clientes.map((cliente) => (
+          <tr key={cliente.id}>
+            <td>{`${cliente.nombre} ${cliente.apellido_paterno} ${cliente.apellido_materno}`}</td>
+            <td>{cliente.email}</td>
+            <td>{cliente.telefono}</td>
+            <td>{cliente.usuarios.nombre_usuario}</td>
+            <td>
+              <button className="edit-btn" onClick={() => openModal(cliente)}>Editar</button>
+              <button className="delete-btn" onClick={() => handleDelete(cliente.id, cliente.usuario_id)}>Eliminar</button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {clientes.map((cliente) => (
-            <tr key={cliente.id}>
-              <td>{`${cliente.nombre} ${cliente.apellido_paterno} ${cliente.apellido_materno}`}</td>
-              <td>{cliente.email}</td>
-              <td>{cliente.telefono}</td>
-              <td>{cliente.usuarios.nombre_usuario}</td>
-              <td>
-                <button className="edit-btn" onClick={() => openModal(cliente)}>Editar</button>
-                <button className="delete-btn" onClick={() => handleDelete(cliente.id, cliente.usuario_id)}>Eliminar</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        ))}
+      </tbody>
+    </table>
+  </div>
 
-      {modalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>{editingCliente ? "Editar Cliente" : "Agregar Cliente"}</h2>
-            <form onSubmit={handleSubmit}>
-              <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
-              <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" value={formData.apellido_paterno} onChange={handleChange} required />
-              <input type="text" name="apellido_materno" placeholder="Apellido Materno" value={formData.apellido_materno} onChange={handleChange} required />
-              <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-              <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleChange} />
-              <input type="text" name="username" placeholder="Usuario" value={formData.username} onChange={handleChange} required />
-              <input type="password" name="password" placeholder="Contraseña" value={formData.password} onChange={handleChange} required />
-              <select name="membresia_id" value={formData.membresia_id} onChange={handleChange}>
-                <option value="1">Sin membresía</option>
-                <option value="2">Básica</option>
-                <option value="3">Premium</option>
-                <option value="4">VIP</option>
-              </select>
-              <button type="submit">Guardar</button>
-              <button type="button" onClick={closeModal}>Cancelar</button>
-            </form>
-          </div>
-        </div>
-      )}
+  {modalOpen && (
+    <div className="modal">
+      <div className="modal-content">
+        <h2>{editingCliente ? "Editar Cliente" : "Agregar Cliente"}</h2>
+        <form onSubmit={handleSubmit}>
+          <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
+          <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" value={formData.apellido_paterno} onChange={handleChange} required />
+          <input type="text" name="apellido_materno" placeholder="Apellido Materno" value={formData.apellido_materno} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
+          <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleChange} />
+          <input type="text" name="username" placeholder="Usuario" value={formData.username} onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Contraseña" value={formData.password} onChange={handleChange} required />
+          <select name="membresia_id" value={formData.membresia_id} onChange={handleChange}>
+            <option value="1">Sin membresía</option>
+            <option value="2">Básica</option>
+            <option value="3">Premium</option>
+            <option value="4">VIP</option>
+          </select>
+          <button type="submit">Guardar</button>
+          <button type="button" onClick={closeModal}>Cancelar</button>
+        </form>
+      </div>
     </div>
+  )}
+</div>
   );
 };
 
