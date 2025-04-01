@@ -101,7 +101,7 @@ body {
   color: white;
 }
 
-@media (max-width: 468px) {
+@media (max-width: 268px) {
   .client-table {
     display: block;
     width: 100%;
