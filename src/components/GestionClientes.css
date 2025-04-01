@@ -103,6 +103,14 @@ body {
     overflow-x: auto; /* Permite scroll horizontal */
     padding: 0; /* Evita desplazamientos innecesarios */
   }
+  @media (max-width: 468px) {
+    .client-table td:first-child {
+      max-width: none;       /* Quita el límite fijo */
+      white-space: normal;   /* Permite el salto de línea */
+      overflow: visible;     /* Muestra todo el contenido */
+      text-overflow: clip;   /* Elimina los puntos suspensivos */
+    }
+  }  
 
   .client-table {
     /* Usamos el display por defecto de la tabla para mantener su estructura */
