@@ -10,7 +10,7 @@ const GestionEmpleados = () => {
     nombre: "",
     apellido_paterno: "",
     apellido_materno: "",
-    domicilio: "",
+    direccion: "",
     curp: "",
     rfc: "",
     puesto: "",
@@ -69,7 +69,7 @@ const GestionEmpleados = () => {
             nombre: formData.nombre,
             apellido_paterno: formData.apellido_paterno,
             apellido_materno: formData.apellido_materno,
-            domicilio: formData.domicilio,
+            direccion: formData.direccion,
             curp: formData.curp,
             rfc: formData.rfc,
             puesto: formData.puesto,
@@ -129,7 +129,7 @@ const GestionEmpleados = () => {
       setEditingEmpleado(null);
       setFormData({
         nombre: "",
-        domicilio: "",
+        direccion: "",
         apellido_paterno: "",
         apellido_materno: "",
         curp: "",
@@ -190,7 +190,7 @@ const GestionEmpleados = () => {
               <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
               <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" value={formData.apellido_paterno} onChange={handleChange} required />
               <input type="text" name="apellido_materno" placeholder="Apellido materno" value={formData.apellido_materno} onChange={handleChange} required />
-              <input type="text" name="domicilio" placeholder="Domicilio" value={formData.domicilio} onChange={handleChange} required />
+              <input type="text" name="direccion" placeholder="Direccion" value={formData.direccion} onChange={handleChange} required />
               <input type="text" name="curp" placeholder="CURP" value={formData.curp} onChange={handleChange} required />
               <input type="text" name="rfc" placeholder="RFC" value={formData.rfc} onChange={handleChange} required />
               <select name="puesto" value={formData.puesto} onChange={handleChange} required>
