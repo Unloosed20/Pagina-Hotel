@@ -97,10 +97,10 @@ body {
   color: white;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 468px) {
   .table-container {
     width: 100%; /* Asegurar que ocupa toda la pantalla */
-    overflow-x: auto; /* Habilitar scroll horizontal */
+    overflow-x: hidden;
     padding: 0; /* Evitar desplazamientos innecesarios */
   }
 
