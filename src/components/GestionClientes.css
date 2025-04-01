@@ -102,28 +102,38 @@ body {
 }
 
 @media (max-width: 468px) {
-
-    body {
-      overflow-x: auto;
-    }
+  body {
+    overflow-x: auto;
+  }
   
   .table-container {
-    overflow-x: auto; /* Asegura que la tabla no se desborde */
+    display: block;
     width: 100%;
     max-width: 100vw;
+    overflow-x: auto;
   }
-
+  
   .client-table {
-    min-width: 600px; /* Mantiene el ancho mínimo para evitar colapsos */
-    display: table; /* Asegura que no cambie su estructura */
+    /* Si deseas mantener un ancho mínimo para evitar colapsos, usa scroll horizontal; 
+       de lo contrario, usa 100% */
+    min-width: 100%;
+    display: table;
   }
-
+  
   .client-table th,
   .client-table td {
     font-size: 14px;
     padding: 6px;
-    white-space: nowrap; /* Previene saltos de línea */
+    white-space: nowrap;
+  }
+  
+  .client-table td:first-child {
+    font-weight: bold;
+    color: #000;
+    max-width: 200px; /* Ajusta este valor según tus necesidades */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    /* Si prefieres que el texto se envuelva, comenta white-space: nowrap en los th/td o aquí */
   }
 }
-
-
