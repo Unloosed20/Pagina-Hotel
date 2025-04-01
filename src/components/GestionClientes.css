@@ -116,7 +116,7 @@ body {
   .client-table {
     /* Si deseas mantener un ancho mínimo para evitar colapsos, usa scroll horizontal; 
        de lo contrario, usa 100% */
-    min-width: 100%;
+    min-width: 50%;
     display: table;
   }
   
@@ -130,7 +130,7 @@ body {
   .client-table td:first-child {
     font-weight: bold;
     color: #000;
-    max-width: 200px; /* Ajusta este valor según tus necesidades */
+    max-width: 50px; /* Ajusta este valor según tus necesidades */
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
