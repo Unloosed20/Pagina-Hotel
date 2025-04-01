@@ -101,17 +101,28 @@ body {
   color: white;
 }
 
-@media (max-width: 268px) {
-  .client-table {
-    display: block;
+@media (max-width: 468px) {
+
+    body {
+      overflow-x: auto;
+    }
+  
+  .table-container {
+    overflow-x: auto; /* Asegura que la tabla no se desborde */
     width: 100%;
-    overflow-x: auto;
+    max-width: 100vw;
   }
 
-  .client-table th, .client-table td {
+  .client-table {
+    min-width: 600px; /* Mantiene el ancho mínimo para evitar colapsos */
+    display: table; /* Asegura que no cambie su estructura */
+  }
+
+  .client-table th,
+  .client-table td {
     font-size: 14px;
     padding: 6px;
-    white-space: nowrap; /* Asegura que el texto no se rompa */
+    white-space: nowrap; /* Previene saltos de línea */
   }
 }
 
