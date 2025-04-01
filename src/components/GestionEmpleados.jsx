@@ -8,6 +8,8 @@ const GestionEmpleados = () => {
   const [editingEmpleado, setEditingEmpleado] = useState(null);
   const [formData, setFormData] = useState({
     nombre: "",
+    apellido_paterno: "",
+    apellido_materno: "",
     domicilio: "",
     curp: "",
     rfc: "",
@@ -65,6 +67,8 @@ const GestionEmpleados = () => {
           {
             usuario_id: usuarioId,
             nombre: formData.nombre,
+            apellido_paterno: formData.apellido_paterno,
+            apellido_materno: formData.apellido_materno,
             domicilio: formData.domicilio,
             curp: formData.curp,
             rfc: formData.rfc,
@@ -126,6 +130,8 @@ const GestionEmpleados = () => {
       setFormData({
         nombre: "",
         domicilio: "",
+        apellido_paterno: "",
+        apellido_materno: "",
         curp: "",
         rfc: "",
         puesto: "",
@@ -162,7 +168,7 @@ const GestionEmpleados = () => {
         <tbody>
           {empleados.map((empleado) => (
             <tr key={empleado.id}>
-              <td>{empleado.nombre}</td>
+              <td>`${empleado.nombre} ${empleado.apellido_paterno} ${empleado.apellido_materno}`</td>
               <td>{empleado.puesto}</td>
               <td>{empleado.email}</td>
               <td>{empleado.telefono}</td>
@@ -182,6 +188,8 @@ const GestionEmpleados = () => {
             <h2>{editingEmpleado ? "Editar Empleado" : "Agregar Empleado"}</h2>
             <form onSubmit={handleSubmit}>
               <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
+              <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" value={formData.apellido_paterno} onChange={handleChange} required />
+              <input type="text" name="apellido_materno" placeholder="Apellido materno" value={formData.apellido_paterno} onChange={handleChange} required />
               <input type="text" name="domicilio" placeholder="Domicilio" value={formData.domicilio} onChange={handleChange} required />
               <input type="text" name="curp" placeholder="CURP" value={formData.curp} onChange={handleChange} required />
               <input type="text" name="rfc" placeholder="RFC" value={formData.rfc} onChange={handleChange} required />

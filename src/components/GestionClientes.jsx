@@ -171,7 +171,7 @@ const GestionClientes = () => {
         <tbody>
           {clientes.map((cliente) => (
             <tr key={cliente.id}>
-              <td>{`${cliente.nombre} ${cliente.apellido_paterno}`}</td>
+              <td>{`${cliente.nombre} ${cliente.apellido_paterno} ${cliente.apellido_materno}`}</td>
               <td>{cliente.email}</td>
               <td>{cliente.telefono}</td>
               <td>{cliente.usuarios.nombre_usuario}</td>
@@ -191,6 +191,7 @@ const GestionClientes = () => {
             <form onSubmit={handleSubmit}>
               <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
               <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" value={formData.apellido_paterno} onChange={handleChange} required />
+              <input type="text" name="apellido_materno" placeholder="Apellido Materno" value={formData.apellido_materno} onChange={handleChange} required />
               <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
               <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleChange} />
               <input type="text" name="username" placeholder="Usuario" value={formData.username} onChange={handleChange} required />
