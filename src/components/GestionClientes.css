@@ -97,24 +97,22 @@ body {
   color: white;
 }
 
-/* RESPONSIVE: Mantiene formato en móviles */
 @media (max-width: 768px) {
-  .container {
-    padding: 10px;
-  }
-
   .table-container {
-    width: 100%;
-    overflow-x: auto;
-    padding: 0 10px; /* Añade un margen interno para evitar desbordes */
+    width: 100%; /* Asegurar que ocupa toda la pantalla */
+    overflow-x: auto; /* Habilitar scroll horizontal */
+    padding: 0; /* Evitar desplazamientos innecesarios */
   }
 
   .client-table {
-    min-width: 600px; /* Mantiene la estructura */
+    display: block; /* Permite que overflow-x funcione correctamente */
+    min-width: 100%; /* Se ajusta mejor al contenedor */
+    overflow-x: auto; /* Para permitir el desplazamiento horizontal */
   }
 
   .client-table th, .client-table td {
-    font-size: 14px;
+    font-size: 14px; /* Reducir tamaño de texto en móviles */
     padding: 8px;
   }
 }
+
