@@ -1,29 +1,31 @@
 /* Estilos generales */
 body {
   font-family: 'Georgia', serif;
-  background-color: #FFF8E7; /* Crema claro */
+  background-color: #FFF8E7;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
+  overflow-x: hidden; /* Previene desbordes */
 }
 
 .container {
   max-width: 900px;
-  margin: auto;
+  width: 100%;
   padding: 20px;
   text-align: center;
-  width: 100%; /* Para asegurarse de que se ajusta */
+  box-sizing: border-box;
 }
 
 .title {
   font-size: 24px;
   margin-bottom: 20px;
-  color: #D4AF37; /* Dorado clásico */
+  color: #D4AF37;
   font-family: 'Playfair Display', serif;
 }
 
+/* Botón principal */
 .add-btn {
   background-color: #D4AF37;
   color: #FFF8E7;
@@ -32,7 +34,7 @@ body {
   cursor: pointer;
   font-size: 16px;
   border-radius: 8px;
-  width: 100%; /* Hace que se adapte bien en móviles */
+  width: 100%;
   max-width: 250px;
   font-weight: bold;
 }
@@ -41,10 +43,17 @@ body {
   background-color: #B38B2D;
 }
 
+/* Tabla */
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* Permite desplazamiento horizontal si es necesario */
+}
+
 .client-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  min-width: 600px; /* Evita que la tabla se haga demasiado pequeña */
 }
 
 .client-table th, .client-table td {
@@ -60,6 +69,7 @@ body {
   color: white;
 }
 
+/* Botones de acción */
 .edit-btn, .delete-btn {
   padding: 8px;
   font-size: 14px;
@@ -78,66 +88,99 @@ body {
   color: white;
 }
 
-.modal-content {
-  margin-bottom: 70px;
-}
-
-/* Ajuste de tabla en pantallas pequeñas */
-@media (max-width: 768px) {
-  .client-table, .client-table thead, .client-table tbody, .client-table th, .client-table td, .client-table tr {
-      display: block;
-      width: 100%;
-  }
-
-  .client-table thead {
-      display: none; /* Oculta encabezados para diseño tipo lista */
-  }
-
-  .client-table tr {
-      margin-bottom: 10px;
-      border: 1px solid #D4AF37;
-      padding: 10px;
-  }
-
-  .client-table td {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-  }
-
-  .add-btn {
-      width: 100%;
-  }
-}
-
-/* Responsividad del modal */
+/* Modal */
 .modal {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
 }
-/* RESPONSIVE: Mantiene el formato de escritorio en móviles */
+
+.modal-content {
+  background: #F5F5DC;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.modal-content h2 {
+  color: #D4AF37;
+  font-size: 24px;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 15px;
+}
+
+.modal-content form input,
+.modal-content form select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #D4AF37;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #FFF8E7;
+  color: #5A4A42;
+}
+
+.modal-content button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.modal-content button[type="submit"] {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+}
+
+.modal-content button[type="submit"]:hover {
+  background-color: #B38B2D;
+}
+
+.modal-content button[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modal-content button[type="button"]:hover {
+  background-color: #5a6268;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .container {
     padding: 15px;
   }
 
+  .table-container {
+    overflow-x: auto; /* Permite desplazamiento en caso de ser necesario */
+  }
+
   .client-table {
-    display: table; /* Mantiene la estructura normal */
-    overflow-x: auto; /* Si hay columnas anchas, permite scroll */
+    min-width: 600px; /* Mantiene estructura */
   }
 
   .client-table th, .client-table td {
-    font-size: 14px; /* Reduce tamaño para mejor ajuste */
+    font-size: 14px; /* Ajusta tamaño */
     padding: 8px;
   }
 
   .modal-content {
-    max-width: 90%; /* Se adapta al ancho del móvil */
+    max-width: 90%;
   }
 }
