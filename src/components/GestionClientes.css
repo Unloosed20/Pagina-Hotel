@@ -121,15 +121,25 @@ body {
   align-items: center;
   padding: 20px;
 }
+/* RESPONSIVE: Mantiene el formato de escritorio en móviles */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
 
-.modal-content {
-  background: #F5F5DC; /* Beige claro */
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px; /* Se adapta en móviles */
-  text-align: center;
+  .client-table {
+    display: table; /* Mantiene la estructura normal */
+    overflow-x: auto; /* Si hay columnas anchas, permite scroll */
+  }
+
+  .client-table th, .client-table td {
+    font-size: 14px; /* Reduce tamaño para mejor ajuste */
+    padding: 8px;
+  }
+
+  .modal-content {
+    max-width: 90%; /* Se adapta al ancho del móvil */
+  }
 }
 
 .modal-content h2 {
