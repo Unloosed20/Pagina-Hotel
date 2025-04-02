@@ -54,6 +54,6 @@ body {
     width: 85%; /* Reduce el ancho un poco para dar más margen */
     max-width: 400px;
     margin: 0 auto; /* Centra el formulario */
-    transform: translateX(10px); /* Desplaza ligeramente hacia la derecha */
+    transform: translateX(50px); /* Desplaza ligeramente hacia la derecha */
   }
 }
