@@ -49,11 +49,11 @@ body {
   color: #A89B8C;
 }
 
-
-
-/* Responsividad */
 @media (max-width: 768px) {
   .form-container {
-      width: 70%; /* Más ancho en pantallas pequeñas */
+    width: 90%; /* Asegura un poco de margen en los lados */
+    max-width: 400px; /* Limita el ancho máximo en móviles */
+    margin: 0 auto; /* Centra y deja espacio a los lados */
   }
 }
+
