@@ -16,7 +16,7 @@ const GestionClientes = () => {
     nacionalidad: "",
     fecha_nacimiento: "",
     rfc: "",
-    membresia_id: 1,
+    membresia_id: "",
     username: "",
     password: "",
   });
@@ -28,7 +28,7 @@ const GestionClientes = () => {
   const fetchClientes = async () => {
     const { data, error } = await supabase
       .from("clientes")
-      .select("*, usuarios(nombre_usuario)");
+      .select("*, usuarios(id, nombre_usuario, contraseña)");
 
     if (error) {
       console.error("Error al obtener clientes:", error);
@@ -36,9 +36,14 @@ const GestionClientes = () => {
       setClientes(data);
     }
   };
-
+  
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target; // Extraemos name y value correctamente
+  
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: name === "membresia_id" ? parseInt(value, 10) : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -92,11 +97,41 @@ const GestionClientes = () => {
         alert("Error al registrar cliente: " + error.message);
       }
     } else {
-      // Actualizar cliente existente
-      const { error } = await supabase.from("clientes").update(formData).eq("id", editingCliente.id);
-      if (error) {
-        console.error("Error al actualizar:", error);
-        alert("Error al actualizar cliente.");
+      try {
+        // 1. Actualizar el usuario
+        const { error: usuarioError } = await supabase
+          .from("usuarios")
+          .update({
+            nombre_usuario: formData.username,
+            contraseña: formData.password,
+          })
+          .eq("id", editingCliente.usuario_id);
+    
+        if (usuarioError) throw usuarioError;
+    
+        // 2. Actualizar el cliente
+        const { error: clienteError } = await supabase
+          .from("clientes")
+          .update({
+            nombre: formData.nombre,
+            apellido_paterno: formData.apellido_paterno,
+            apellido_materno: formData.apellido_materno,
+            email: formData.email,
+            telefono: formData.telefono,
+            direccion: formData.direccion,
+            nacionalidad: formData.nacionalidad,
+            fecha_nacimiento: formData.fecha_nacimiento,
+            rfc: formData.rfc,
+            membresia_id: formData.membresia_id,
+          })
+          .eq("id", editingCliente.id);
+    
+        if (clienteError) throw clienteError;
+    
+        alert("Cliente actualizado exitosamente.");
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error al actualizar cliente: " + error.message);
       }
     }
 
@@ -127,7 +162,20 @@ const GestionClientes = () => {
   const openModal = (cliente = null) => {
     if (cliente) {
       setEditingCliente(cliente);
-      setFormData(cliente);
+      setFormData({
+        nombre: cliente.nombre,
+        apellido_paterno: cliente.apellido_paterno,
+        apellido_materno: cliente.apellido_materno,
+        email: cliente.email,
+        telefono: cliente.telefono,
+        direccion: cliente.direccion,
+        nacionalidad: cliente.nacionalidad,
+        fecha_nacimiento: cliente.fecha_nacimiento,
+        rfc: cliente.rfc,
+        membresia_id: cliente.membresia_id,
+        username: cliente.usuarios?.nombre_usuario || "", // Cargar el usuario
+        password: cliente.usuarios?.contraseña || "", // Cargar la contraseña
+      });
     } else {
       setEditingCliente(null);
       setFormData({
@@ -140,13 +188,14 @@ const GestionClientes = () => {
         nacionalidad: "",
         fecha_nacimiento: "",
         rfc: "",
-        membresia_id: 1,
+        membresia_id: "",
         username: "",
         password: "",
       });
     }
     setModalOpen(true);
   };
+  
 
   const closeModal = () => {
     setModalOpen(false);
@@ -196,6 +245,9 @@ const GestionClientes = () => {
           <input type="text" name="apellido_materno" placeholder="Apellido Materno" value={formData.apellido_materno} onChange={handleChange} required />
           <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
           <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleChange} />
+          <input type="text" name="direccion" placeholder="Dirección" value={formData.direccion} onChange={handleChange}/>
+          <input type="text" name="nacionalidad" placeholder="Nacionalidad" value={formData.nacionalidad} onChange={handleChange}/>
+          <input type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange}/>
           <input type="text" name="username" placeholder="Usuario" value={formData.username} onChange={handleChange} required />
           <input type="password" name="password" placeholder="Contraseña" value={formData.password} onChange={handleChange} required />
           <select name="membresia_id" value={formData.membresia_id} onChange={handleChange}>

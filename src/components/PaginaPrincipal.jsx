@@ -55,7 +55,7 @@ const PaginaPrincipal = () => {
       </section>
 
       <footer className="footer">
-        <p>&copy; 2025 Hotel de Lujo. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Hotel Punta Arena. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

@@ -12,8 +12,9 @@ const GestionEmpleados = () => {
     apellido_materno: "",
     direccion: "",
     curp: "",
+    fecha_contratacion: "",
     rfc: "",
-    puesto: "",
+    puesto_id: "",
     email: "",
     telefono: "",
     username: "",
@@ -27,7 +28,7 @@ const GestionEmpleados = () => {
   const fetchEmpleados = async () => {
     const { data, error } = await supabase
       .from("empleados")
-      .select("*, usuarios(nombre_usuario)");
+      .select("*, usuarios(id, nombre_usuario, contraseña),  puesto:puestos(nombre)");
 
     if (error) {
       console.error("Error al obtener empleados:", error);
@@ -37,12 +38,17 @@ const GestionEmpleados = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target; // Extraemos name y value correctamente
+  
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: name === "puesto_id" ? parseInt(value) || "" : value, // Convierte solo el puesto a número
+    }));
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!editingEmpleado) {
       try {
         // 1. Insertar usuario en "usuarios"
@@ -56,12 +62,12 @@ const GestionEmpleados = () => {
             },
           ])
           .select();
-
+  
         if (usuarioError) throw usuarioError;
         if (!usuarioData || usuarioData.length === 0) throw new Error("Error al crear usuario");
-
+  
         const usuarioId = usuarioData[0].id;
-
+  
         // 2. Insertar empleado en "empleados"
         const { error: empleadoError } = await supabase.from("empleados").insert([
           {
@@ -72,34 +78,66 @@ const GestionEmpleados = () => {
             direccion: formData.direccion,
             curp: formData.curp,
             rfc: formData.rfc,
-            puesto: formData.puesto,
+            fecha_contratacion: formData.fecha_contratacion,
+            puesto_id: formData.puesto_id,
             email: formData.email,
             telefono: formData.telefono,
           },
         ]);
-
+  
         if (empleadoError) {
           await supabase.from("usuarios").delete().eq("id", usuarioId);
           throw empleadoError;
         }
-
+  
         alert("Empleado registrado exitosamente.");
       } catch (error) {
         console.error("Error:", error);
         alert("Error al registrar empleado: " + error.message);
       }
     } else {
-      // Actualizar empleado existente
-      const { error } = await supabase.from("empleados").update(formData).eq("id", editingEmpleado.id);
-      if (error) {
+      try {
+        // 1. Actualizar datos del empleado
+        const { error: empleadoError } = await supabase
+          .from("empleados")
+          .update({
+            nombre: formData.nombre,
+            apellido_paterno: formData.apellido_paterno,
+            apellido_materno: formData.apellido_materno,
+            direccion: formData.direccion,
+            curp: formData.curp,
+            rfc: formData.rfc,
+            fecha_contratacion: formData.fecha_contratacion,
+            puesto_id: formData.puesto_id,
+            email: formData.email,
+            telefono: formData.telefono,
+          })
+          .eq("id", editingEmpleado.id);
+  
+        if (empleadoError) throw empleadoError;
+  
+        // 2. Actualizar datos del usuario
+        const { error: usuarioError } = await supabase
+          .from("usuarios")
+          .update({
+            nombre_usuario: formData.username,
+            contraseña: formData.password,
+          })
+          .eq("id", editingEmpleado.usuario_id);
+  
+        if (usuarioError) throw usuarioError;
+  
+        alert("Empleado actualizado exitosamente.");
+      } catch (error) {
         console.error("Error al actualizar:", error);
         alert("Error al actualizar empleado.");
       }
     }
-
+  
     fetchEmpleados();
     closeModal();
   };
+  
 
   const handleDelete = async (id, usuarioId) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este empleado?")) {
@@ -124,17 +162,31 @@ const GestionEmpleados = () => {
   const openModal = (empleado = null) => {
     if (empleado) {
       setEditingEmpleado(empleado);
-      setFormData(empleado);
+      setFormData({
+        nombre: empleado.nombre,
+        apellido_paterno: empleado.apellido_paterno,
+        apellido_materno: empleado.apellido_materno,
+        direccion: empleado.direccion,
+        curp: empleado.curp,
+        rfc: empleado.rfc,
+        fecha_contratacion: empleado.fecha_contratacion,
+        puesto_id: empleado.puesto_id,
+        email: empleado.email,
+        telefono: empleado.telefono,
+        username: empleado.usuarios ? empleado.usuarios.nombre_usuario : "",
+        password: empleado.usuarios ? empleado.usuarios.contraseña : "",
+      });
     } else {
       setEditingEmpleado(null);
       setFormData({
         nombre: "",
-        direccion: "",
         apellido_paterno: "",
         apellido_materno: "",
+        direccion: "",
         curp: "",
         rfc: "",
-        puesto: "",
+        fecha_contratacion: "",
+        puesto_id: "",
         email: "",
         telefono: "",
         username: "",
@@ -143,6 +195,7 @@ const GestionEmpleados = () => {
     }
     setModalOpen(true);
   };
+  
 
   const closeModal = () => {
     setModalOpen(false);
@@ -168,8 +221,8 @@ const GestionEmpleados = () => {
         <tbody>
           {empleados.map((empleado) => (
             <tr key={empleado.id}>
-              <td>`${empleado.nombre} ${empleado.apellido_paterno} ${empleado.apellido_materno}`</td>
-              <td>{empleado.puesto}</td>
+              <td>{`${empleado.nombre} ${empleado.apellido_paterno} ${empleado.apellido_materno}`}</td>
+              <td>{empleado.puesto ? empleado.puesto.nombre : "Sin puesto"}</td>
               <td>{empleado.email}</td>
               <td>{empleado.telefono}</td>
               <td>{empleado.usuarios.nombre_usuario}</td>
@@ -193,12 +246,13 @@ const GestionEmpleados = () => {
               <input type="text" name="direccion" placeholder="Direccion" value={formData.direccion} onChange={handleChange} required />
               <input type="text" name="curp" placeholder="CURP" value={formData.curp} onChange={handleChange} required />
               <input type="text" name="rfc" placeholder="RFC" value={formData.rfc} onChange={handleChange} required />
-              <select name="puesto" value={formData.puesto} onChange={handleChange} required>
+              <input type="date" name="fecha_contratacion" value={formData.fecha_contratacion} onChange={handleChange}/>
+              <select name="puesto_id" value={formData.puesto_id} onChange={handleChange} required>
                 <option value="">Selecciona el puesto</option>
-                <option value="Recepcionista">Recepcionista</option>
-                <option value="Limpieza">Limpieza</option>
-                <option value="Chef">Chef</option>
-                <option value="Gerente">Gerente</option>
+                <option value="1">Recepcionista</option>
+                <option value="2">Limpieza</option>
+                <option value="3">Chef</option>
+                <option value="4">Gerente</option>
               </select>
               <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
               <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleChange} required />
