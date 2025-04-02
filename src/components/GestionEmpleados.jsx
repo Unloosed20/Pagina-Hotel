@@ -207,6 +207,7 @@ const GestionEmpleados = () => {
       <button className="add-btn" onClick={() => openModal()}>
         Agregar Empleado
       </button>
+      <div className="scroll-container">
       <table className="employee-table">
         <thead>
           <tr>
@@ -234,6 +235,7 @@ const GestionEmpleados = () => {
           ))}
         </tbody>
       </table>
+      </div>
 
       {modalOpen && (
         <div className="modal">
