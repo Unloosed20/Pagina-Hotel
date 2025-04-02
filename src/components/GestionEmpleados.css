@@ -78,6 +78,14 @@ body {
   margin-top: 15px;
 }
 
+/* Asegurar que el nombre del cliente no se salga */
+.employee-table td:first-child {
+  font-weight: bold;
+  color: #000;
+  max-width: 250px; /* Ajuste de ancho */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Muestra "..." si es muy largo */
+}
 .employee-table th,
 .employee-table td {
   border: 1px solid #ddd;
