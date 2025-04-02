@@ -54,6 +54,6 @@ body {
 /* Responsividad */
 @media (max-width: 768px) {
   .form-container {
-      width: 80%; /* Más ancho en pantallas pequeñas */
+      width: 70%; /* Más ancho en pantallas pequeñas */
   }
 }
