@@ -1,42 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { supabase } from "../supabaseClient";
 import "./ReservaHabitacion.css";
-import suiteImg from "../assets/suite.jpg";
-import dobleImg from "../assets/doble.jpg";
-import familiarImg from "../assets/familiar.jpg"
-
-const habitaciones = [
-  {
-    id: 1,
-    nombre: "Suite de Lujo",
-    descripcion: "Una habitación con vista al mar, jacuzzi y servicio 24/7.",
-    precio: 250,
-    imagen: suiteImg,
-  },
-  {
-    id: 2,
-    nombre: "Habitación Doble",
-    descripcion: "Ideal para parejas, incluye desayuno y acceso a la piscina.",
-    precio: 150,
-    imagen: dobleImg,
-  },
-  {
-    id: 3,
-    nombre: "Habitación Familiar",
-    descripcion: "Espaciosa, con dos camas dobles y balcón privado.",
-    precio: 180,
-    imagen: familiarImg,
-  },
-];
 
 const ReservaHabitacion = () => {
   const [fechaEntrada, setFechaEntrada] = useState(null);
   const [fechaSalida, setFechaSalida] = useState(null);
+  const [habitaciones, setHabitaciones] = useState([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(null);
   const [numPersonas, setNumPersonas] = useState(1);
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    fetchHabitaciones();
+  }, []);
+
+  const fetchHabitaciones = async () => {
+    const { data, error } = await supabase
+      .from("habitaciones")
+      .select(`
+        id,
+        numero_habitacion,
+        estado,
+        imagen_url,
+        tipos_habitaciones (
+          tipo,
+          descripcion,
+          numero_persona,
+          precio_noche
+        )
+      `)
+      .eq("estado", "Disponible");
+
+    if (error) {
+      console.error("Error al cargar habitaciones:", error);
+      return;
+    }
+
+    // Para cada registro, obtenemos la URL pública del bucket
+    const habitacionesConUrl = data.map((hab) => {
+      const { publicURL } = supabase
+        .storage
+        .from("habitaciones")
+        .getPublicUrl(hab.imagen_url || "");
+      return { ...hab, publicURL };
+    });
+
+    setHabitaciones(habitacionesConUrl);
+  };
 
   return (
     <div className="reserva-container">
@@ -60,29 +73,40 @@ const ReservaHabitacion = () => {
 
       <label>Habitación:</label>
       <select
-        onChange={(e) =>
-          setHabitacionSeleccionada(
-            habitaciones.find((hab) => hab.id === parseInt(e.target.value))
-          )
-        }
+        value={habitacionSeleccionada?.id || ""}
+        onChange={(e) => {
+          const hab = habitaciones.find(
+            (h) => h.id === parseInt(e.target.value, 10)
+          );
+          setHabitacionSeleccionada(hab);
+        }}
       >
         <option value="">Seleccione una opción</option>
         {habitaciones.map((hab) => (
           <option key={hab.id} value={hab.id}>
-            {hab.nombre} - ${hab.precio} por noche
+            {`#${hab.numero_habitacion} — ${hab.tipos_habitaciones.tipo} ($${hab.tipos_habitaciones.precio_noche}/noche)`}
           </option>
         ))}
       </select>
 
       {habitacionSeleccionada && (
         <div className="habitacion-detalle">
-          <img
-            src={habitacionSeleccionada.imagen}
-            alt={habitacionSeleccionada.nombre}
-          />
-          <h3>{habitacionSeleccionada.nombre}</h3>
-          <p>{habitacionSeleccionada.descripcion}</p>
-          <p className="precio">Costo: ${habitacionSeleccionada.precio} por noche</p>
+          {/* Muestra la imagen cargada desde Storage */}
+          {habitacionSeleccionada.publicURL && (
+            <img
+              src={habitacionSeleccionada.publicURL}
+              alt={habitacionSeleccionada.tipos_habitaciones.tipo}
+              className="detalle-img"
+            />
+          )}
+          <h3>{habitacionSeleccionada.tipos_habitaciones.tipo}</h3>
+          <p>{habitacionSeleccionada.tipos_habitaciones.descripcion}</p>
+          <p className="precio">
+            Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
+          </p>
+          <p>
+            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona} {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1 ? "personas" : "persona"}
+          </p>
         </div>
       )}
 
@@ -95,10 +119,18 @@ const ReservaHabitacion = () => {
       />
 
       <label>Nombre:</label>
-      <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+      <input
+        type="text"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+      />
 
       <label>Email:</label>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
 
       <button className="btn-reservar">Confirmar Reserva</button>
     </div>

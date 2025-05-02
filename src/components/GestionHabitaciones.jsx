@@ -12,7 +12,9 @@ const GestionHabitaciones = () => {
   const [formData, setFormData] = useState({
     numero_habitacion: "",
     estado: "Disponible",
-    tipo: ""
+    tipo: "",
+    imagen_file: null,      // Archivo seleccionado
+    imagen_url: ""          // URL en Supabase
   });
 
   const [formTipo, setFormTipo] = useState({
@@ -37,7 +39,7 @@ const GestionHabitaciones = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select("*, tipos_habitaciones(tipo)");
+      .select("*, tipos_habitaciones(tipo), imagen_url");
     if (!error) setHabitaciones(data);
   };
 
@@ -47,37 +49,40 @@ const GestionHabitaciones = () => {
   };
 
   const handleHabitacionChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "tipo" ? parseInt(value) : value
-    }));
+    const { name, value, files } = e.target;
+    if (name === "imagen_file") {
+      setFormData((prev) => ({ ...prev, imagen_file: files[0] }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: name === "tipo" ? parseInt(value) : value
+      }));
+    }
   };
 
   const registrarTipoHabitacion = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.from("tipos_habitaciones").insert([formTipo]);
-    if (!error) {
-      alert("Tipo de habitación registrado");
-      setFormTipo({ tipo: "", descripcion: "", numero_persona: "", precio_noche: "" });
-      fetchTiposHabitacion();
-      setTipoModalOpen(false);
-    }
+    await supabase.from("tipos_habitaciones").insert([formTipo]);
+    setFormTipo({ tipo: "", descripcion: "", numero_persona: "", precio_noche: "" });
+    fetchTiposHabitacion();
+    setTipoModalOpen(false);
   };
 
-  const openModal = (habitacion = null) => {
-    if (habitacion) {
+  const openModal = (hab = null) => {
+    if (hab) {
       setIsEditing(true);
-      setEditingHabitacion(habitacion);
+      setEditingHabitacion(hab);
       setFormData({
-        numero_habitacion: habitacion.numero_habitacion,
-        estado: habitacion.estado,
-        tipo: habitacion.tipo
+        numero_habitacion: hab.numero_habitacion,
+        estado: hab.estado,
+        tipo: hab.tipo,
+        imagen_file: null,
+        imagen_url: hab.imagen_url || ""
       });
     } else {
       setIsEditing(false);
       setEditingHabitacion(null);
-      setFormData({ numero_habitacion: "", estado: "Disponible", tipo: "" });
+      setFormData({ numero_habitacion: "", estado: "Disponible", tipo: "", imagen_file: null, imagen_url: "" });
     }
     setModalOpen(true);
   };
@@ -87,33 +92,53 @@ const GestionHabitaciones = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing && editingHabitacion) {
-      const { error } = await supabase
+
+    let url = formData.imagen_url;
+
+    // Si cargó un archivo nuevo, súbelo primero
+    if (formData.imagen_file) {
+      const fileExt = formData.imagen_file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase
+        .storage
         .from("habitaciones")
-        .update(formData)
-        .eq("id", editingHabitacion.id);
-      if (!error) alert("Habitación actualizada correctamente");
-    } else {
-      const { error } = await supabase.from("habitaciones").insert([formData]);
-      if (!error) alert("Habitación registrada correctamente");
+        .upload(fileName, formData.imagen_file, { upsert: true });
+
+      if (uploadError) {
+        return alert("Error subiendo imagen: " + uploadError.message);
+      }
+
+      const { publicURL } = supabase
+        .storage
+        .from("habitaciones")
+        .getPublicUrl(fileName);
+
+      url = publicURL;
     }
+
+    const payload = {
+      numero_habitacion: formData.numero_habitacion,
+      estado: formData.estado,
+      tipo: formData.tipo,
+      imagen_url: url
+    };
+
+    if (isEditing && editingHabitacion) {
+      await supabase.from("habitaciones").update(payload).eq("id", editingHabitacion.id);
+      alert("Habitación actualizada correctamente");
+    } else {
+      await supabase.from("habitaciones").insert([payload]);
+      alert("Habitación registrada correctamente");
+    }
+
     fetchHabitaciones();
     closeModal();
   };
 
-  // Nueva función para eliminar habitación
   const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar esta habitación?")) {
-      const { error } = await supabase
-        .from("habitaciones")
-        .delete()
-        .eq("id", id);
-      if (!error) {
-        alert("Habitación eliminada correctamente");
-        fetchHabitaciones();
-      } else {
-        alert("Error al eliminar la habitación.");
-      }
+    if (window.confirm("¿Eliminar esta habitación?")) {
+      await supabase.from("habitaciones").delete().eq("id", id);
+      fetchHabitaciones();
     }
   };
 
@@ -121,8 +146,8 @@ const GestionHabitaciones = () => {
     <div className="container">
       <h1 className="title">Gestión de Habitaciones</h1>
 
-      <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap" }}>
-        <button className="add-btn" onClick={() => setTipoModalOpen(true)}>Registrar Tipo de Habitación</button>
+      <div className="actions">
+        <button className="add-btn" onClick={() => setTipoModalOpen(true)}>Registrar Tipo</button>
         <button className="add-btn" onClick={() => openModal()}>Registrar Habitación</button>
       </div>
 
@@ -133,8 +158,9 @@ const GestionHabitaciones = () => {
             <thead>
               <tr>
                 <th>Número</th>
-                <th>Estado</th>
                 <th>Tipo</th>
+                <th>Estado</th>
+                <th>Imagen</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -142,8 +168,13 @@ const GestionHabitaciones = () => {
               {habitaciones.map((hab) => (
                 <tr key={hab.id}>
                   <td>{hab.numero_habitacion}</td>
+                  <td>{hab.tipos_habitaciones.tipo}</td>
                   <td>{hab.estado}</td>
-                  <td>{hab.tipos_habitaciones?.tipo}</td>
+                  <td>
+                    {hab.imagen_url && (
+                      <img src={hab.imagen_url} alt="" className="thumb" />
+                    )}
+                  </td>
                   <td>
                     <button className="edit-btn" onClick={() => openModal(hab)}>Editar</button>
                     <button className="delete-btn" onClick={() => handleDelete(hab.id)}>Eliminar</button>
@@ -155,13 +186,19 @@ const GestionHabitaciones = () => {
         </div>
       </section>
 
-      {/* Modal Habitación */}
       {modalOpen && (
         <div className="modal">
           <div className="modal-content">
             <h2>{isEditing ? "Editar Habitación" : "Registrar Habitación"}</h2>
             <form onSubmit={handleSubmit}>
-              <input type="text" name="numero_habitacion" placeholder="Número de habitación" value={formData.numero_habitacion} onChange={handleHabitacionChange} required />
+              <input
+                type="text"
+                name="numero_habitacion"
+                placeholder="Número de habitación"
+                value={formData.numero_habitacion}
+                onChange={handleHabitacionChange}
+                required
+              />
               <select name="estado" value={formData.estado} onChange={handleHabitacionChange} required>
                 <option value="Disponible">Disponible</option>
                 <option value="Ocupada">Ocupada</option>
@@ -169,10 +206,12 @@ const GestionHabitaciones = () => {
               </select>
               <select name="tipo" value={formData.tipo} onChange={handleHabitacionChange} required>
                 <option value="">Seleccionar tipo</option>
-                {tiposHabitacion.map((tipo) => (
-                  <option key={tipo.id} value={tipo.id}>{tipo.tipo}</option>
+                {tiposHabitacion.map((t) => (
+                  <option key={t.id} value={t.id}>{t.tipo}</option>
                 ))}
               </select>
+              <label>Imagen:</label>
+              <input type="file" name="imagen_file" accept="image/*" onChange={handleHabitacionChange} />
               <button type="submit">Guardar</button>
               <button type="button" onClick={closeModal}>Cancelar</button>
             </form>
@@ -180,7 +219,6 @@ const GestionHabitaciones = () => {
         </div>
       )}
 
-      {/* Modal Tipo de Habitación */}
       {tipoModalOpen && (
         <div className="modal">
           <div className="modal-content">
