@@ -1,0 +1,133 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7; /* Crema claro */
+    margin: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.title {
+    font-size: 2rem;
+    color: #5A4A42; /* Marrón oscuro suave */
+    margin-bottom: 20px;
+}
+
+.ventas-panel {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.menu-section,
+.cart-section {
+    background-color: #F5F5DC; /* Beige claro */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 45%;
+    min-width: 300px;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.item-card {
+    background: #FFF8E7;
+    padding: 10px;
+    border: 1px solid #D4AF37; /* Dorado */
+    border-radius: 8px;
+}
+.item-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #5A4A42;
+}
+.item-card p {
+    margin: 5px 0;
+    color: #5A4A42;
+}
+.item-card button {
+    margin-top: 10px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #D4AF37; /* Dorado */
+    color: #FFF8E7; /* Crema */
+    cursor: pointer;
+    font-weight: bold;
+}
+.item-card button:hover {
+    background-color: #B38B2D; /* Dorado oscuro */
+}
+
+.cart-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 10px 0;
+}
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #5A4A42;
+}
+.cart-item input {
+    width: 50px;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #D4AF37;
+    border-radius: 5px;
+    background-color: #FFF8E7;
+    color: #5A4A42;
+}
+.cart-item button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545; /* Mantener para eliminar */
+    color: white;
+    cursor: pointer;
+}
+.cart-item button:hover {
+    background-color: #c82333;
+}
+
+.total {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    color: #5A4A42;
+}
+.sell-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #D4AF37; /* Dorado */
+    color: #FFF8E7; /* Crema */
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+.sell-btn:hover {
+    background-color: #B38B2D;
+}
+
+@media (max-width: 768px) {
+    .ventas-panel {
+        flex-direction: column;
+        align-items: center;
+    }
+    .menu-section,
+    .cart-section {
+        width: 90%;
+    }
+}

@@ -1,0 +1,177 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #FFF8E7;
+    margin: 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 2rem;
+    color: #5A4A42;
+    margin-bottom: 20px;
+  }
+  
+  .add-btn {
+    background-color: #D4AF37;
+    color: #FFF8E7;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 15px;
+  }
+  
+  .add-btn:hover {
+    background-color: #B38B2D;
+  }
+  
+  .scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  
+  .client-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  
+  .client-table th,
+  .client-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .client-table th {
+    background-color: #D4AF37;
+    color: #FFF8E7;
+  }
+  
+  .client-table td:first-child {
+    font-weight: bold;
+    color: #5A4A42;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: 6px 10px;
+    margin: 2px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .edit-btn {
+    background-color: #ffc107;
+    color: black;
+  }
+  
+  .edit-btn:hover {
+    background-color: #e0a800;
+  }
+  
+  .delete-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .delete-btn:hover {
+    background-color: #c82333;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: #F5F5DC;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    width: 350px;
+    max-width: 95%;
+    max-height: 80%;
+    overflow-y: auto;
+    text-align: center;
+  }
+  
+  .modal-content h2 {
+    color: #D4AF37;
+    font-size: 36px;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 20px;
+  }
+  
+  .modal-content form input,
+  .modal-content form textarea {
+    width: 80%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #D4AF37;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #FFF8E7;
+    color: #5A4A42;
+  }
+  
+  .modal-content form input::placeholder,
+  .modal-content form textarea::placeholder {
+    color: #A89B8C;
+  }
+  
+  .modal-content button {
+    width: 80%;
+    padding: 12px;
+    background-color: #D4AF37;
+    border: none;
+    color: #FFF8E7;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .modal-content button:hover {
+    background-color: #B38B2D;
+  }
+  
+  .modal-content button[type="button"] {
+    background-color: #6c757d;
+  }
+  
+  .modal-content button[type="button"]:hover {
+    background-color: #5a6268;
+  }
+  
+  @media (max-width: 768px) {
+    .client-table th,
+    .client-table td { font-size: 0.9rem; padding: 8px; }
+    .modal-content { width: 95%; }
+    .modal-content form input,
+    .modal-content form textarea { padding: 8px; }
+    .modal-content button { padding: 8px; }
+  }

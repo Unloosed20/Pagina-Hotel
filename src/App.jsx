@@ -15,6 +15,12 @@ import UsuarioClientes from  "./components/UsuarioClientes";
 import AdminDashboard from "./components/AdminDashboard";
 import GestionClientes from "./components/GestionClientes";
 import GestionEmpleados from "./components/GestionEmpleados";
+import GestionHabitaciones from "./components/GestionHabitaciones";
+import GestionAlmacen from "./components/GestionAlmacen";
+import GestionRestaurante from "./components/GestionRestaurante";
+import GestionVentas from "./components/GestionVentas";
+import GestionServicios from "./components/GestionServicios";
+import GestionMembresias from "./components/GestionMembresias";
 function App() {
   return (
     <Router>
@@ -34,6 +40,12 @@ function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/gestion-clientes" element={<GestionClientes />} />
         <Route path="/gestion-empleados" element={<GestionEmpleados />} />
+        <Route path="/gestion-habitaciones" element={<GestionHabitaciones />} />
+        <Route path="/gestion-almacen" element={<GestionAlmacen />} />
+        <Route path="/gestion-restaurante" element={<GestionRestaurante />} />
+        <Route path="/gestion-ventas" element={<GestionVentas />} />
+        <Route path="/gestion-servicios" element={<GestionServicios />} />
+        <Route path="/gestion-membresias" element={<GestionMembresias />} />
       </Routes>
     </Router>
   );
