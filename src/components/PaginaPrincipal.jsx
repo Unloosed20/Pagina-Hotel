@@ -4,24 +4,34 @@ import spaImage from "../assets/spalujo.jpg";
 import piscinaImage from "../assets/piscina.png";
 import restaurantImage from "../assets/restaurant.jpg";
 import NavBar from "./NavBar";
+import { useNavigate } from "react-router-dom";
 
 const PaginaPrincipal = () => {
+  const navigate = useNavigate();
+
+  const handleReservarClick = () => {
+    navigate("/reserva-habitaciones");
+  };
+
   return (
     <div className="pagina-principal">
-      <NavBar></NavBar>
+      <NavBar />
       <section className="hero">
-    <div className="hero-overlay">
-        <h2 className="hero-title">Bienvenido a una experiencia inigualable</h2>
-        <p className="hero-subtitle">
-        Disfruta del lujo, comodidad y exclusividad en nuestro hotel 5 estrellas.
-        </p>
-        <div className="cta-container">
-        <button className="cta-button">Reservar Ahora</button>
-        <button className="cta-button">Más Información</button>
-        <button className="cta-button">Contacto</button>
+        <div className="hero-overlay">
+          <h2 className="hero-title">Bienvenido a una experiencia inigualable</h2>
+          <p className="hero-subtitle">
+            Disfruta del lujo, comodidad y exclusividad en nuestro hotel 5 estrellas.
+          </p>
+          <div className="cta-container">
+            <button className="cta-button" onClick={handleReservarClick}>
+              Reservar Ahora
+            </button>
+            <button className="cta-button">Más Información</button>
+            <button className="cta-button">Contacto</button>
+          </div>
         </div>
-    </div>
-    </section>
+      </section>
+
       <section className="about-us">
         <div className="content">
           <h2>Sobre Nosotros</h2>
