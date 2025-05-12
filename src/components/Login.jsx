@@ -1,8 +1,7 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
-import "./Login.css"; // Asegúrate de importar el CSS
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
+import "./Login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -19,25 +18,33 @@ const Login = () => {
     const { username, password } = formData;
 
     try {
-      // Llamada a Supabase para autenticar al usuario
+      // 1. Buscar al usuario en Supabase
       const { data, error: loginError } = await supabase
         .from("usuarios")
         .select("id, nombre_usuario, contraseña, role_id")
-        .eq("nombre_usuario", username) // Buscar usuario por nombre de usuario
-        .single(); // Debería devolver solo un registro
+        .eq("nombre_usuario", username)
+        .single();
 
       if (loginError || !data) {
         setError("Usuario no encontrado");
         return;
       }
 
-      // Verificar si la contraseña proporcionada es correcta
+      // 2. Verificar contraseña
       if (data.contraseña !== password) {
         setError("Contraseña incorrecta");
         return;
       }
 
-      // Redirigir según el rol
+      // 3. Guardar sesión en localStorage
+      const userSession = {
+        id: data.id,
+        username: data.nombre_usuario,
+        role: Number(data.role_id),        // si manejas tokens, agrégalos aquí
+      };
+      localStorage.setItem("user", JSON.stringify(userSession));
+
+      // 4. Redirigir según rol
       if (data.role_id === 3) {
         navigate("/pagina-principal"); // Cliente
       } else if (data.role_id === 1) {
