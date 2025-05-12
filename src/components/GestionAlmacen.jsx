@@ -1,4 +1,3 @@
-// GestionAlmacen.jsx
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import "./GestionAlmacen.css";
@@ -134,7 +133,7 @@ const GestionAlmacen = () => {
 
       <section className="productos-section">
         <h2>Productos Disponibles</h2>
-        <div className="scroll-container">
+        <div className="scroll-container" style={{ maxHeight: '300px', overflowY: 'auto' }}>
           <table className="client-table">
             <thead>
               <tr>
@@ -167,7 +166,7 @@ const GestionAlmacen = () => {
 
       <section className="alertas-section">
         <h2>Alertas de Abastecimiento</h2>
-        <div className="scroll-container">
+        <div className="scroll-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
           <table className="client-table">
             <thead>
               <tr>
@@ -207,7 +206,7 @@ const GestionAlmacen = () => {
               <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
               <textarea name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleChange} />
               <input type="number" name="stock" placeholder="Stock" value={formData.stock} onChange={handleChange} required />
-              <input type="number" name="stock_minimo" placeholder="Stock Mínimo" value={formData.stock_minimo} onChange={handleChange} required />
+              <input type="number" step="0.01" name="stock_minimo" placeholder="Stock Mínimo" value={formData.stock_minimo} onChange={handleChange} required />
               <input type="number" step="0.01" name="precio_unitario" placeholder="Precio Unitario" value={formData.precio_unitario} onChange={handleChange} required />
               <button type="submit">Guardar</button>
               <button type="button" onClick={closeModal}>Cancelar</button>
