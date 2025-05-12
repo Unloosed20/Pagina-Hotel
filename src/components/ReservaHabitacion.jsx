@@ -15,7 +15,6 @@ const ReservaHabitacion = () => {
   const [fechaSalida, setFechaSalida] = useState(null);
   const [habitaciones, setHabitaciones] = useState([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(preseleccion || null);
-  const [numPersonas, setNumPersonas] = useState(1);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
 
@@ -33,8 +32,7 @@ const ReservaHabitacion = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(
-        `
+      .select(`
         id,
         numero_habitacion,
         estado,
@@ -82,7 +80,7 @@ const ReservaHabitacion = () => {
   const handleReservar = async () => {
     setError(null);
 
-    // Validaciones básicas
+    // Validaciones
     if (!fechaEntrada || !fechaSalida) {
       setError("Selecciona fechas de entrada y salida.");
       return;
@@ -93,61 +91,64 @@ const ReservaHabitacion = () => {
     }
 
     try {
+      // 1. Obtener user y luego su cliente_id en la tabla clientes
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user || !user.id) throw new Error("No hay usuario logueado");
 
-      // Formatear fechas a YYYY-MM-DD
-      const inicioStr = fechaEntrada.toISOString().split('T')[0];
-      const finStr = fechaSalida.toISOString().split('T')[0];
+      // Asumimos que en tu tabla 'clientes' hay un campo 'usuario_id' que referencia a usuarios.id
+      let { data: clienteRecord, error: clienteError } = await supabase
+        .from("clientes")
+        .select("id")
+        .eq("usuario_id", user.id)
+        .single();
 
-      console.log("Usuario logueado:", user);
-      console.log("Reserva:", { inicioStr, finStr, habitacion: habitacionSeleccionada, total });
+      if (clienteError || !clienteRecord) {
+        throw new Error("No se encontró el registro de cliente para este usuario.");
+      }
+      const clienteId = clienteRecord.id;
 
-      // 1. Insertar en reservas (fecha DATE)
+      // 2. Insertar en reservas (fechas en ISO)
       const { data: reservaData, error: reservaError } = await supabase
         .from("reservas")
         .insert([
           {
-            cliente_id: user.id,
-            fecha_inicio: inicioStr,
-            fecha_fin: finStr,
+            cliente_id: clienteId,
+            fecha_inicio: fechaEntrada.toISOString().split("T")[0], // YYYY-MM-DD
+            fecha_fin: fechaSalida.toISOString().split("T")[0],
             estado: "Confirmada"
           }
         ])
         .single();
       if (reservaError) throw reservaError;
-      console.log("Reserva creada:", reservaData);
 
-      // 2. Link Reserva-Habitación
+      // 3. Link Reserva-Habitación
       const { error: rhError } = await supabase
         .from("reservas_habitaciones")
         .insert([
           { reserva_id: reservaData.id, habitacion_id: habitacionSeleccionada.id }
         ]);
       if (rhError) throw rhError;
-      console.log("Enlace reserva-habitación OK");
 
-      // 3. Crear factura pendiente
+      // 4. Crear factura pendiente
       const { data: facturaData, error: facturaError } = await supabase
         .from("facturas")
         .insert([
           {
-            cliente_id: user.id,
+            cliente_id: clienteId,
             reserva_id: reservaData.id,
             total: total,
             estado: "Pendiente",
-            rfc_cliente: "" // opcional: pedir RFC luego
+            rfc_cliente: "" // opcional
           }
         ])
         .single();
       if (facturaError) throw facturaError;
-      console.log("Factura creada:", facturaData);
 
-      // Redirigir a pago
+      // 5. Redirigir a pago
       navigate("/pago", { state: { factura: facturaData, total } });
     } catch (err) {
       console.error("Error en handleReservar:", err);
-      setError("Error al procesar la reserva. Intenta nuevamente.");
+      setError(err.message || "Error al procesar la reserva. Intenta nuevamente.");
     }
   };
 
@@ -204,7 +205,9 @@ const ReservaHabitacion = () => {
           </p>
           <p>
             Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
-            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1 ? "personas" : "persona"}
+            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
+              ? "personas"
+              : "persona"}
           </p>
         </div>
       )}
