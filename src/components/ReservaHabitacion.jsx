@@ -1,30 +1,38 @@
+/* components/ReservaHabitacion.jsx */
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { supabase } from "../supabaseClient";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./ReservaHabitacion.css";
 
 const ReservaHabitacion = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const preseleccion = location.state?.habitacion;
+
   const [fechaEntrada, setFechaEntrada] = useState(null);
   const [fechaSalida, setFechaSalida] = useState(null);
   const [habitaciones, setHabitaciones] = useState([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(preseleccion || null);
-  const [numPersonas, setNumPersonas] = useState(1);
-  const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchHabitaciones();
   }, []);
 
+  useEffect(() => {
+    if (preseleccion && habitaciones.length) {
+      const coincide = habitaciones.find((h) => h.id === preseleccion.id);
+      if (coincide) setHabitacionSeleccionada(coincide);
+    }
+  }, [preseleccion, habitaciones]);
+
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(
-        `
+      .select(`
         id,
         numero_habitacion,
         estado,
@@ -39,28 +47,19 @@ const ReservaHabitacion = () => {
       .eq("estado", "Disponible");
 
     if (error) {
-      console.error("Error al cargar habitaciones:", error);
+      console.error(error);
       return;
     }
 
-    // Para cada registro, obtenemos la URL pública correctamente
     const habitacionesConUrl = await Promise.all(
       data.map(async (hab) => {
-        let publicURL = "";
-        if (hab.imagen_url) {
-          if (hab.imagen_url.startsWith("http")) {
-            publicURL = hab.imagen_url;
-          } else {
-            const { data: urlData, error: urlError } = await supabase
-              .storage
-              .from("habitaciones")
-              .getPublicUrl(hab.imagen_url);
-            if (urlError) {
-              console.error("Error obteniendo URL pública:", urlError);
-            } else {
-              publicURL = urlData.publicUrl;
-            }
-          }
+        let publicURL = hab.imagen_url.startsWith("http") ? hab.imagen_url : "";
+        if (!publicURL && hab.imagen_url) {
+          const { data: urlData, error: urlError } = await supabase
+            .storage
+            .from("habitaciones")
+            .getPublicUrl(hab.imagen_url);
+          if (!urlError) publicURL = urlData.publicUrl;
         }
         return { ...hab, publicURL };
       })
@@ -69,27 +68,75 @@ const ReservaHabitacion = () => {
     setHabitaciones(habitacionesConUrl);
   };
 
-  // Si había una habitación preseleccionada, la sincronizamos con data obtenida
+  // Calcular total cuando cambian fechas o habitación
   useEffect(() => {
-    if (preseleccion && habitaciones.length) {
-      const coincide = habitaciones.find((h) => h.id === preseleccion.id);
-      if (coincide) setHabitacionSeleccionada(coincide);
+    if (fechaEntrada && fechaSalida && habitacionSeleccionada) {
+      const diff = Math.ceil((fechaSalida - fechaEntrada) / (1000 * 60 * 60 * 24));
+      const precio = habitacionSeleccionada.tipos_habitaciones.precio_noche;
+      setTotal(diff * precio);
     }
-  }, [preseleccion, habitaciones]);
+  }, [fechaEntrada, fechaSalida, habitacionSeleccionada]);
 
-  const handleReservar = () => {
-    // Aquí iría la lógica para confirmar reserva (no incluida en el ejemplo)
-    alert(`Reserva confirmada para habitación ${habitacionSeleccionada.numero_habitacion}`);
+  const handleReservar = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) throw new Error('No hay usuario logueado');
+
+      // 1. Insertar en reservas
+      const { data: reservaData, error: reservaError } = await supabase
+        .from('reservas')
+        .insert([
+          {
+            cliente_id: user.id,
+            fecha_inicio: fechaEntrada,
+            fecha_fin: fechaSalida,
+            estado: 'Confirmada'
+          }
+        ])
+        .single();
+
+      if (reservaError) throw reservaError;
+
+      // 2. Link Reserva-Habitación
+      const { error: rhError } = await supabase
+        .from('reservas_habitaciones')
+        .insert([
+          { reserva_id: reservaData.id, habitacion_id: habitacionSeleccionada.id }
+        ]);
+      if (rhError) throw rhError;
+
+      // 3. Crear factura pendiente
+      const { data: facturaData, error: facturaError } = await supabase
+        .from('facturas')
+        .insert([
+          {
+            cliente_id: user.id,
+            reserva_id: reservaData.id,
+            total: total,
+            estado: 'Pendiente',
+            rfc_cliente: '' // opcional: pedir RFC luego
+          }
+        ])
+        .single();
+      if (facturaError) throw facturaError;
+
+      // Redirigir a pago
+      navigate('/pago', { state: { factura: facturaData, total } });
+    } catch (err) {
+      console.error(err);
+      setError('Error al procesar la reserva. Intenta nuevamente.');
+    }
   };
 
   return (
     <div className="reserva-container">
       <h2>Reserva tu Habitación</h2>
+      {error && <p className="error">{error}</p>}
 
       <label>Fecha de Entrada:</label>
       <DatePicker
         selected={fechaEntrada}
-        onChange={(date) => setFechaEntrada(date)}
+        onChange={setFechaEntrada}
         minDate={new Date()}
         className="input"
       />
@@ -97,54 +144,34 @@ const ReservaHabitacion = () => {
       <label>Fecha de Salida:</label>
       <DatePicker
         selected={fechaSalida}
-        onChange={(date) => setFechaSalida(date)}
+        onChange={setFechaSalida}
         minDate={fechaEntrada}
         className="input"
       />
 
       <label>Habitación:</label>
       <select
-        value={habitacionSeleccionada?.id || ""}
+        value={habitacionSeleccionada?.id || ''}
         onChange={(e) => {
-          const hab = habitaciones.find(
-            (h) => h.id === parseInt(e.target.value, 10)
-          );
+          const hab = habitaciones.find(h => h.id === +e.target.value);
           setHabitacionSeleccionada(hab);
         }}
       >
-        <option value="">Seleccione una opción</option>
-        {habitaciones.map((hab) => (
+        <option value="">Selecciona...</option>
+        {habitaciones.map(hab => (
           <option key={hab.id} value={hab.id}>
-            {`#${hab.numero_habitacion} — ${hab.tipos_habitaciones.tipo} ($${hab.tipos_habitaciones.precio_noche}/noche)`}
+            #{hab.numero_habitacion} — {hab.tipos_habitaciones.tipo} (${hab.tipos_habitaciones.precio_noche}/noche)
           </option>
         ))}
       </select>
 
-      {habitacionSeleccionada && (
-        <div className="habitacion-detalle">
-          {habitacionSeleccionada.publicURL && (
-            <img
-              src={habitacionSeleccionada.publicURL}
-              alt={habitacionSeleccionada.tipos_habitaciones.tipo}
-              className="detalle-img"
-            />
-          )}
-          <h3>{habitacionSeleccionada.tipos_habitaciones.tipo}</h3>
-          <p>{habitacionSeleccionada.tipos_habitaciones.descripcion}</p>
-          <p className="precio">
-            Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
-          </p>
-          <p>
-            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
-            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
-              ? "personas"
-              : "persona"}
-          </p>
-
+      {habitacionSeleccionada && fechaEntrada && fechaSalida && (
+        <>
+          <p>Total a pagar: ${total}</p>
           <button className="btn-reservar" onClick={handleReservar}>
-            Confirmar Reserva
+            Confirmar y Pagar
           </button>
-        </div>
+        </>
       )}
     </div>
   );
