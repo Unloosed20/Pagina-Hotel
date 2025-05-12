@@ -33,8 +33,7 @@ const ReservaHabitacion = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(
-        `
+      .select(`
         id,
         numero_habitacion,
         estado,
@@ -80,52 +79,70 @@ const ReservaHabitacion = () => {
   }, [fechaEntrada, fechaSalida, habitacionSeleccionada]);
 
   const handleReservar = async () => {
+    setError(null);
+
+    // Validaciones básicas
+    if (!fechaEntrada || !fechaSalida) {
+      setError("Selecciona fechas de entrada y salida.");
+      return;
+    }
+    if (!habitacionSeleccionada) {
+      setError("Selecciona una habitación.");
+      return;
+    }
+
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) throw new Error('No hay usuario logueado');
+      if (!user || !user.id) throw new Error("No hay usuario logueado");
 
-      // 1. Insertar en reservas
+      console.log("Usuario logueado:", user);
+      console.log("Reserva:", { fechaEntrada, fechaSalida, habitacion: habitacionSeleccionada, total });
+
+      // 1. Insertar en reservas (fechas en ISO)
       const { data: reservaData, error: reservaError } = await supabase
-        .from('reservas')
+        .from("reservas")
         .insert([
           {
             cliente_id: user.id,
-            fecha_inicio: fechaEntrada,
-            fecha_fin: fechaSalida,
-            estado: 'Confirmada'
+            fecha_inicio: fechaEntrada.toISOString(),
+            fecha_fin: fechaSalida.toISOString(),
+            estado: "Confirmada"
           }
         ])
         .single();
       if (reservaError) throw reservaError;
+      console.log("Reserva creada:", reservaData);
 
       // 2. Link Reserva-Habitación
       const { error: rhError } = await supabase
-        .from('reservas_habitaciones')
+        .from("reservas_habitaciones")
         .insert([
           { reserva_id: reservaData.id, habitacion_id: habitacionSeleccionada.id }
         ]);
       if (rhError) throw rhError;
+      console.log("Enlace reserva-habitación OK");
 
       // 3. Crear factura pendiente
       const { data: facturaData, error: facturaError } = await supabase
-        .from('facturas')
+        .from("facturas")
         .insert([
           {
             cliente_id: user.id,
             reserva_id: reservaData.id,
             total: total,
-            estado: 'Pendiente',
-            rfc_cliente: '' // opcional: pedir RFC luego
+            estado: "Pendiente",
+            rfc_cliente: "" // opcional: pedir RFC luego
           }
         ])
         .single();
       if (facturaError) throw facturaError;
+      console.log("Factura creada:", facturaData);
 
       // Redirigir a pago
-      navigate('/pago', { state: { factura: facturaData, total } });
+      navigate("/pago", { state: { factura: facturaData, total } });
     } catch (err) {
-      console.error(err);
-      setError('Error al procesar la reserva. Intenta nuevamente.');
+      console.error("Error en handleReservar:", err);
+      setError("Error al procesar la reserva. Intenta nuevamente.");
     }
   };
 
@@ -152,14 +169,14 @@ const ReservaHabitacion = () => {
 
       <label>Habitación:</label>
       <select
-        value={habitacionSeleccionada?.id || ''}
+        value={habitacionSeleccionada?.id || ""}
         onChange={(e) => {
-          const hab = habitaciones.find(h => h.id === +e.target.value);
+          const hab = habitaciones.find((h) => h.id === +e.target.value);
           setHabitacionSeleccionada(hab);
         }}
       >
         <option value="">Selecciona...</option>
-        {habitaciones.map(hab => (
+        {habitaciones.map((hab) => (
           <option key={hab.id} value={hab.id}>
             #{hab.numero_habitacion} — {hab.tipos_habitaciones.tipo} (${hab.tipos_habitaciones.precio_noche}/noche)
           </option>
@@ -181,7 +198,7 @@ const ReservaHabitacion = () => {
             Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
           </p>
           <p>
-            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona} {" "}
+            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
             {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
               ? "personas"
               : "persona"}
