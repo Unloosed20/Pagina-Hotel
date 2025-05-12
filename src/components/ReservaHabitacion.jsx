@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { supabase } from "../supabaseClient";
+import { useLocation } from "react-router-dom";
 import "./ReservaHabitacion.css";
 
 const ReservaHabitacion = () => {
+  const location = useLocation();
+  const preseleccion = location.state?.habitacion;
   const [fechaEntrada, setFechaEntrada] = useState(null);
   const [fechaSalida, setFechaSalida] = useState(null);
   const [habitaciones, setHabitaciones] = useState([]);
-  const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(null);
+  const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(preseleccion || null);
   const [numPersonas, setNumPersonas] = useState(1);
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -50,6 +53,13 @@ const ReservaHabitacion = () => {
 
     setHabitaciones(habitacionesConUrl);
   };
+
+  useEffect(() => {
+  if (preseleccion && habitaciones.length) {
+    const coincide = habitaciones.find(h => h.id === preseleccion.id);
+    if (coincide) setHabitacionSeleccionada(coincide);
+  }
+}, [preseleccion, habitaciones]);
 
   return (
     <div className="reserva-container">

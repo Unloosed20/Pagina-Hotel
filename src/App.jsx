@@ -21,6 +21,7 @@ import GestionRestaurante from "./components/GestionRestaurante";
 import GestionVentas from "./components/GestionVentas";
 import GestionServicios from "./components/GestionServicios";
 import GestionMembresias from "./components/GestionMembresias";
+import HabitacionesCliente from "./components/HabitacionesCliente";
 function App() {
   return (
     <Router>
@@ -46,6 +47,7 @@ function App() {
         <Route path="/gestion-ventas" element={<GestionVentas />} />
         <Route path="/gestion-servicios" element={<GestionServicios />} />
         <Route path="/gestion-membresias" element={<GestionMembresias />} />
+        <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
       </Routes>
     </Router>
   );

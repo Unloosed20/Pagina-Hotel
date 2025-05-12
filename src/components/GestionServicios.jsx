@@ -8,11 +8,14 @@ const GestionServicios = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingServicio, setEditingServicio] = useState(null);
+
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
     precio: "",
-    disponible: true
+    disponible: true,
+    imagen_file: null,
+    imagen_url: ""
   });
 
   useEffect(() => {
@@ -23,7 +26,7 @@ const GestionServicios = () => {
   const fetchServicios = async () => {
     const { data, error } = await supabase
       .from("servicios")
-      .select("*");
+      .select("*, imagen_url");
     if (!error) setServicios(data);
   };
 
@@ -42,12 +45,21 @@ const GestionServicios = () => {
         nombre: serv.nombre,
         descripcion: serv.descripcion,
         precio: serv.precio,
-        disponible: serv.disponible
+        disponible: serv.disponible,
+        imagen_file: null,
+        imagen_url: serv.imagen_url || ""
       });
     } else {
       setIsEditing(false);
       setEditingServicio(null);
-      setFormData({ nombre: "", descripcion: "", precio: "", disponible: true });
+      setFormData({
+        nombre: "",
+        descripcion: "",
+        precio: "",
+        disponible: true,
+        imagen_file: null,
+        imagen_url: ""
+      });
     }
     setModalOpen(true);
   };
@@ -55,34 +67,57 @@ const GestionServicios = () => {
   const closeModal = () => setModalOpen(false);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
+    const { name, value, type, checked, files } = e.target;
+    if (name === "imagen_file") {
+      setFormData(prev => ({ ...prev, imagen_file: files[0] }));
+    } else if (type === "checkbox") {
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let url = formData.imagen_url;
+
+    // Si sube una nueva imagen
+    if (formData.imagen_file) {
+      const ext = formData.imagen_file.name.split('.').pop();
+      const fileName = `${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase
+        .storage
+        .from("servicios")
+        .upload(fileName, formData.imagen_file, { upsert: true });
+
+      if (uploadError) {
+        return alert("Error subiendo imagen: " + uploadError.message);
+      }
+
+      const { publicURL } = supabase
+        .storage
+        .from("servicios")
+        .getPublicUrl(fileName);
+
+      url = publicURL;
+    }
+
     const payload = {
       nombre: formData.nombre,
       descripcion: formData.descripcion,
       precio: parseFloat(formData.precio),
-      disponible: formData.disponible
+      disponible: formData.disponible,
+      imagen_url: url
     };
 
     if (isEditing && editingServicio) {
-      await supabase
-        .from("servicios")
-        .update(payload)
-        .eq("id", editingServicio.id);
+      await supabase.from("servicios").update(payload).eq("id", editingServicio.id);
       alert("Servicio actualizado");
     } else {
-      await supabase
-        .from("servicios")
-        .insert([payload]);
+      await supabase.from("servicios").insert([payload]);
       alert("Servicio registrado");
     }
+
     fetchServicios();
     closeModal();
   };
@@ -109,6 +144,7 @@ const GestionServicios = () => {
           <table className="client-table">
             <thead>
               <tr>
+                <th>Imagen</th>
                 <th>Nombre</th>
                 <th>Precio</th>
                 <th>Disponible</th>
@@ -118,6 +154,11 @@ const GestionServicios = () => {
             <tbody>
               {servicios.map(s => (
                 <tr key={s.id}>
+                  <td>
+                    {s.imagen_url && (
+                      <img src={s.imagen_url} alt={s.nombre} className="thumb" />
+                    )}
+                  </td>
                   <td>{s.nombre}</td>
                   <td>{s.precio.toFixed(2)}</td>
                   <td>{s.disponible ? "Sí" : "No"}</td>
@@ -197,6 +238,13 @@ const GestionServicios = () => {
                   onChange={handleChange}
                 /> Disponible
               </label>
+              <label>Imagen del Servicio:</label>
+              <input
+                type="file"
+                name="imagen_file"
+                accept="image/*"
+                onChange={handleChange}
+              />
               <button type="submit">Guardar</button>
               <button type="button" onClick={closeModal}>Cancelar</button>
             </form>

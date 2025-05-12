@@ -168,6 +168,14 @@ body {
     background-color: #5a6268;
   }
   
+  .thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+
   @media (max-width: 768px) {
     .client-table th,
     .client-table td { font-size: 0.9rem; padding: 8px; }

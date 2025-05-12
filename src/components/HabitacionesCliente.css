@@ -1,0 +1,86 @@
+/* HabitacionesCliente.css */
+
+.hc-container {
+  font-family: 'Georgia', serif;
+  background-color: #FFF8E7;
+  padding: 20px;
+}
+
+.hc-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #5A4A42;
+  margin-bottom: 20px;
+}
+
+.hc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.hc-card {
+  background-color: #F5F5DC;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.hc-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.hc-info {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hc-name {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #D4AF37;
+  font-family: 'Playfair Display', serif;
+}
+
+.hc-desc {
+  flex: 1;
+  margin: 10px 0;
+  color: #5A4A42;
+  font-size: 0.95rem;
+}
+
+.hc-price {
+  font-weight: bold;
+  color: #5A4A42;
+  margin-bottom: 15px;
+}
+
+.hc-btn {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.hc-btn:hover {
+  background-color: #B38B2D;
+}
+
+@media (max-width: 600px) {
+  .hc-grid {
+    grid-template-columns: 1fr;
+  }
+  .hc-img {
+    height: 200px;
+  }
+}
