@@ -230,7 +230,62 @@ const GestionRestaurante = () => {
           <div className="modal-content">
             <h2>{isEditing ? 'Editar Item' : 'Registrar Item'}</h2>
             <form onSubmit={handleSubmit}>
-              {/* formulario completo */}
+              <input name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required/>
+              <textarea name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleChange}/>
+              <select name="tipo" value={formData.tipo} onChange={handleChange}>
+                <option value="Comida">Comida</option>
+                <option value="Bebida">Bebida</option>
+              </select>
+              <input name="precio" type="number" step="0.01" placeholder="Precio" value={formData.precio} onChange={handleChange} required/>
+              {formData.tipo==='Bebida' && <>
+                <input name="precio_copa" type="number" step="0.01" placeholder="Precio Copa" value={formData.precio_copa} onChange={handleChange}/>
+                <input name="numero_copas_botella" type="number" placeholder="Copas/Botella" value={formData.numero_copas_botella} onChange={handleChange}/>
+              </>}
+              <label>Imagen:</label>
+              <input type="file" name="imagen_file" accept="image/*" onChange={handleChange}/>
+              <h3>Ingredientes</h3>
+              {formData.ingredientes.map((ing, idx)=>(
+                <div key={idx} className="ingrediente-row">
+                  <select value={ing.producto_id} onChange={e=>{
+                    const pid=parseInt(e.target.value,10);
+                    setFormData(f=>{
+                      const arr=[...f.ingredientes];
+                      arr[idx].producto_id=pid;
+                      return {...f,ingredientes:arr};
+                    });
+                  }}>
+                    <option value="">Selecciona producto</option>
+                    {productos.map(p=>(
+                      <option key={p.id} value={p.id}>{p.nombre}</option>
+                    ))}
+                  </select>
+                  <input type="number" step="0.01" min="0.01" placeholder="Cant. usada"
+                    value={ing.cantidad_usada}
+                    onChange={e=>{
+                      const c=parseFloat(e.target.value);
+                      setFormData(f=>{
+                        const arr=[...f.ingredientes];
+                        arr[idx].cantidad_usada=c;
+                        return {...f,ingredientes:arr};
+                      });
+                    }}
+                  />
+                  <button type="button" onClick={()=>{
+                    setFormData(f=>{
+                      const arr=f.ingredientes.filter((_,i)=>i!==idx);
+                      return {...f,ingredientes:arr};
+                    });
+                  }}>×</button>
+                </div>
+              ))}
+              <button type="button" onClick={()=>{
+                setFormData(f=>({
+                  ...f,
+                  ingredientes:[...f.ingredientes,{producto_id:"",cantidad_usada:""}]
+                }));
+              }}>+ Agregar Ingrediente</button>
+              <button type="submit">Guardar</button>
+              <button type="button" onClick={closeModal}>Cancelar</button>
             </form>
           </div>
         </div>
