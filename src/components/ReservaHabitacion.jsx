@@ -15,6 +15,7 @@ const ReservaHabitacion = () => {
   const [fechaSalida, setFechaSalida] = useState(null);
   const [habitaciones, setHabitaciones] = useState([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(preseleccion || null);
+  const [numPersonas, setNumPersonas] = useState(1);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
 
@@ -32,7 +33,8 @@ const ReservaHabitacion = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(`
+      .select(
+        `
         id,
         numero_habitacion,
         estado,
@@ -47,7 +49,7 @@ const ReservaHabitacion = () => {
       .eq("estado", "Disponible");
 
     if (error) {
-      console.error(error);
+      console.error("Error al cargar habitaciones:", error);
       return;
     }
 
@@ -94,7 +96,6 @@ const ReservaHabitacion = () => {
           }
         ])
         .single();
-
       if (reservaError) throw reservaError;
 
       // 2. Link Reserva-Habitación
@@ -136,7 +137,7 @@ const ReservaHabitacion = () => {
       <label>Fecha de Entrada:</label>
       <DatePicker
         selected={fechaEntrada}
-        onChange={setFechaEntrada}
+        onChange={(date) => setFechaEntrada(date)}
         minDate={new Date()}
         className="input"
       />
@@ -144,7 +145,7 @@ const ReservaHabitacion = () => {
       <label>Fecha de Salida:</label>
       <DatePicker
         selected={fechaSalida}
-        onChange={setFechaSalida}
+        onChange={(date) => setFechaSalida(date)}
         minDate={fechaEntrada}
         className="input"
       />
@@ -164,6 +165,29 @@ const ReservaHabitacion = () => {
           </option>
         ))}
       </select>
+
+      {habitacionSeleccionada && (
+        <div className="habitacion-detalle">
+          {habitacionSeleccionada.publicURL && (
+            <img
+              src={habitacionSeleccionada.publicURL}
+              alt={habitacionSeleccionada.tipos_habitaciones.tipo}
+              className="detalle-img"
+            />
+          )}
+          <h3>{habitacionSeleccionada.tipos_habitaciones.tipo}</h3>
+          <p>{habitacionSeleccionada.tipos_habitaciones.descripcion}</p>
+          <p className="precio">
+            Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
+          </p>
+          <p>
+            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona} {" "}
+            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
+              ? "personas"
+              : "persona"}
+          </p>
+        </div>
+      )}
 
       {habitacionSeleccionada && fechaEntrada && fechaSalida && (
         <>
