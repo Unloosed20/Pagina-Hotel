@@ -83,4 +83,8 @@
   .hc-img {
     height: 200px;
   }
+
+   .hc-container {
+    padding-bottom: 60px;
+  }
 }
