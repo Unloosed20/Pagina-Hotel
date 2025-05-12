@@ -82,7 +82,7 @@ const GestionHabitaciones = () => {
     } else {
       setIsEditing(false);
       setEditingHabitacion(null);
-      setFormData({ numero_habitacion: "", estado: "Disponible", tipo: "", imagen_file: null, imagen_url: "" });
+      setFormData({ número_habitación: "", estado: "Disponible", tipo: "", imagen_file: null, imagen_url: "" });
     }
     setModalOpen(true);
   };
@@ -96,29 +96,21 @@ const GestionHabitaciones = () => {
     let url = formData.imagen_url;
 
     if (formData.imagen_file) {
-      // Generar nombre de archivo válido
       const fileExt = formData.imagen_file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
 
-      // Subir a Storage
       const { error: uploadError } = await supabase
         .storage
         .from("habitaciones")
         .upload(fileName, formData.imagen_file, { upsert: true });
-      if (uploadError) {
-        return alert("Error subiendo imagen: " + uploadError.message);
-      }
+      if (uploadError) return alert("Error subiendo imagen: " + uploadError.message);
 
-      // Obtener URL pública
       const { data: publicUrlData, error: urlError } = supabase
         .storage
         .from("habitaciones")
         .getPublicUrl(fileName);
-      if (urlError) {
-        console.error("Error obteniendo la URL pública:", urlError);
-      } else {
-        url = publicUrlData.publicUrl;
-      }
+      if (urlError) console.error("Error obteniendo la URL pública:", urlError);
+      else url = publicUrlData.publicUrl;
     }
 
     const payload = {
@@ -158,7 +150,7 @@ const GestionHabitaciones = () => {
 
       <section className="habitaciones-section">
         <h2>Lista de Habitaciones</h2>
-        <div className="scroll-container">
+        <div className="scroll-container" style={{ maxHeight: '400px', overflowY: 'auto' }}>
           <table className="client-table">
             <thead>
               <tr>
@@ -176,9 +168,7 @@ const GestionHabitaciones = () => {
                   <td>{hab.tipos_habitaciones.tipo}</td>
                   <td>{hab.estado}</td>
                   <td>
-                    {hab.imagen_url && (
-                      <img src={hab.imagen_url} alt="" className="thumb" />
-                    )}
+                    {hab.imagen_url && <img src={hab.imagen_url} alt="Habitación" className="thumb" />}
                   </td>
                   <td>
                     <button className="edit-btn" onClick={() => openModal(hab)}>Editar</button>
