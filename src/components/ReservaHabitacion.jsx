@@ -33,7 +33,8 @@ const ReservaHabitacion = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(`
+      .select(
+        `
         id,
         numero_habitacion,
         estado,
@@ -95,17 +96,21 @@ const ReservaHabitacion = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user || !user.id) throw new Error("No hay usuario logueado");
 
-      console.log("Usuario logueado:", user);
-      console.log("Reserva:", { fechaEntrada, fechaSalida, habitacion: habitacionSeleccionada, total });
+      // Formatear fechas a YYYY-MM-DD
+      const inicioStr = fechaEntrada.toISOString().split('T')[0];
+      const finStr = fechaSalida.toISOString().split('T')[0];
 
-      // 1. Insertar en reservas (fechas en ISO)
+      console.log("Usuario logueado:", user);
+      console.log("Reserva:", { inicioStr, finStr, habitacion: habitacionSeleccionada, total });
+
+      // 1. Insertar en reservas (fecha DATE)
       const { data: reservaData, error: reservaError } = await supabase
         .from("reservas")
         .insert([
           {
             cliente_id: user.id,
-            fecha_inicio: fechaEntrada.toISOString(),
-            fecha_fin: fechaSalida.toISOString(),
+            fecha_inicio: inicioStr,
+            fecha_fin: finStr,
             estado: "Confirmada"
           }
         ])
@@ -199,9 +204,7 @@ const ReservaHabitacion = () => {
           </p>
           <p>
             Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
-            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
-              ? "personas"
-              : "persona"}
+            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1 ? "personas" : "persona"}
           </p>
         </div>
       )}
