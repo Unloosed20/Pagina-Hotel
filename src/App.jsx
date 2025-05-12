@@ -1,8 +1,9 @@
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 import Login from "./components/Login";
 import RegistroClientes from "./components/RegistroClientes";
-import PerfilCliente from "./components/PerfilCliente"
+import PerfilCliente from "./components/PerfilCliente";
 import FiltroDeHabitaciones from "./components/FiltroDeHabitaciones";
 import PaginaPrincipal from "./components/PaginaPrincipal";
 import RegistrarHabitacion from "./components/RegistrarHabitacion";
@@ -22,36 +23,48 @@ import GestionVentas from "./components/GestionVentas";
 import GestionServicios from "./components/GestionServicios";
 import GestionMembresias from "./components/GestionMembresias";
 import HabitacionesCliente from "./components/HabitacionesCliente";
-function App() {
+
+// Wrapper for protected routes
+const PrivateRoute = ({ redirectTo = '/' }) => {
+  const { session } = useAuth();
+  const location = useLocation();
+  return session ? <Outlet /> : <Navigate to={`${redirectTo}?redirect=${location.pathname}`} replace />;
+};
+
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/registro-clientes" element={<RegistroClientes />} />
-        <Route path="/perfil-cliente" element={<PerfilCliente />} />
-        <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
-        <Route path="/pagina-principal" element={<PaginaPrincipal />} />
-        <Route path="/registrar-habitacion" element={<RegistrarHabitacion />} />
-        <Route path="/modificar-habitaciones" element={<ModificacionHabitaciones />} />
-        <Route path="/modificar-empleados" element={<ModificarEmpleados />} />
-        <Route path="/registro-empleados" element={<RegistroEmpleados />} />
-        <Route path="/turnos-empleados" element={<TurnosEmpleados />} />
-        <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
-        <Route path="/usuario-clientes" element={<UsuarioClientes />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/gestion-clientes" element={<GestionClientes />} />
-        <Route path="/gestion-empleados" element={<GestionEmpleados />} />
-        <Route path="/gestion-habitaciones" element={<GestionHabitaciones />} />
-        <Route path="/gestion-almacen" element={<GestionAlmacen />} />
-        <Route path="/gestion-restaurante" element={<GestionRestaurante />} />
-        <Route path="/gestion-ventas" element={<GestionVentas />} />
-        <Route path="/gestion-servicios" element={<GestionServicios />} />
-        <Route path="/gestion-membresias" element={<GestionMembresias />} />
-        <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<Login />} />
+          <Route path="/registro-clientes" element={<RegistroClientes />} />
+
+          {/* Protected */}
+          <Route element={<PrivateRoute redirectTo="/" />}>
+            <Route path="/pagina-principal" element={<PaginaPrincipal />} />
+            <Route path="/perfil-cliente" element={<PerfilCliente />} />
+            <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
+            <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
+            <Route path="/usuario-clientes" element={<UsuarioClientes />} />
+            <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/gestion-clientes" element={<GestionClientes />} />
+            <Route path="/gestion-empleados" element={<GestionEmpleados />} />
+            <Route path="/gestion-habitaciones" element={<GestionHabitaciones />} />
+            <Route path="/registrar-habitacion" element={<RegistrarHabitacion />} />
+            <Route path="/modificar-habitaciones" element={<ModificacionHabitaciones />} />
+            <Route path="/modificar-empleados" element={<ModificarEmpleados />} />
+            <Route path="/registro-empleados" element={<RegistroEmpleados />} />
+            <Route path="/turnos-empleados" element={<TurnosEmpleados />} />
+            <Route path="/gestion-almacen" element={<GestionAlmacen />} />
+            <Route path="/gestion-restaurante" element={<GestionRestaurante />} />
+            <Route path="/gestion-ventas" element={<GestionVentas />} />
+            <Route path="/gestion-servicios" element={<GestionServicios />} />
+            <Route path="/gestion-membresias" element={<GestionMembresias />} />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
-
-export default App;
-

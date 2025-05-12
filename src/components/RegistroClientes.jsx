@@ -13,7 +13,7 @@ const RegistroClientes = () => {
     nacionalidad: "",
     fechaDeNacimiento: "",
     rfc: "",
-    membresia: "",
+    membresia: "1", // Por defecto "Sin membresía"
   });
 
   const navigate = useNavigate();
@@ -25,8 +25,9 @@ const RegistroClientes = () => {
   const handleNext = () => {
     const requestData = {
       ...formData,
-      membresia: formData.membresia === "" ? null : parseInt(formData.membresia, 10),
+      membresia: formData.membresia === "1" ? null : parseInt(formData.membresia, 10),
     };
+
     sessionStorage.setItem("clienteData", JSON.stringify(requestData));
     navigate("/usuario-clientes");
   };

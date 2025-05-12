@@ -1,54 +1,55 @@
-import { Link } from "react-router-dom";
+/* src/components/Login.jsx */
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
-import "./Login.css"; // Asegúrate de importar el CSS
+import { supabase } from "../supabaseClient";
+import "./Login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = new URLSearchParams(location.search).get('redirect');
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { username, password } = formData;
-
     try {
-      // Llamada a Supabase para autenticar al usuario
-      const { data, error: loginError } = await supabase
-        .from("usuarios")
-        .select("id, nombre_usuario, contraseña, role_id")
-        .eq("nombre_usuario", username) // Buscar usuario por nombre de usuario
-        .single(); // Debería devolver solo un registro
-
-      if (loginError || !data) {
+      // 1) Get user record by username
+      const { data: userRecord, error: fetchError } = await supabase
+        .from('usuarios')
+        .select('id, email, role_id')
+        .eq('nombre_usuario', username)
+        .single();
+      if (fetchError || !userRecord) {
         setError("Usuario no encontrado");
         return;
       }
-
-      // Verificar si la contraseña proporcionada es correcta
-      if (data.contraseña !== password) {
-        setError("Contraseña incorrecta");
+      // 2) Sign in via Supabase Auth using email
+      const { user, error: authError } = await supabase.auth.signIn({
+        email: userRecord.email,
+        password,
+      });
+      if (authError || !user) {
+        setError("Credenciales inválidas");
         return;
       }
-
-      // Redirigir según el rol
-      if (data.role_id === 3) {
-        navigate("/pagina-principal"); // Cliente
-      } else if (data.role_id === 1) {
-        navigate("/admin-dashboard"); // Administrador
+      // 3) Redirect based on redirect param or role
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+      } else if (userRecord.role_id === 3) {
+        navigate("/pagina-principal", { replace: true });
+      } else if (userRecord.role_id === 1) {
+        navigate("/admin-dashboard", { replace: true });
       } else {
         setError("Acceso denegado. No tienes permisos.");
       }
-
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      setError("Hubo un error al intentar iniciar sesión. Intenta nuevamente.");
+    } catch (err) {
+      console.error(err);
+      setError("Error al iniciar sesión. Intenta de nuevo.");
     }
   };
 
@@ -59,7 +60,7 @@ const Login = () => {
         <input
           type="text"
           name="username"
-          placeholder="Usuario"
+          placeholder="Nombre de usuario"
           value={formData.username}
           onChange={handleChange}
           required

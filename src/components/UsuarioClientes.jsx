@@ -1,6 +1,6 @@
 // src/RegistroUsuario.jsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
 import "./UsuarioClientes.css";
 
@@ -10,7 +10,6 @@ const UsuarioClientes = () => {
     password: "",
     confirmPassword: "",
   });
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +17,7 @@ const UsuarioClientes = () => {
     const clienteData = sessionStorage.getItem("clienteData");
     if (!clienteData) {
       alert("No hay datos de cliente. Redirigiendo...");
-      navigate("/registro-clientes"); // Si no hay datos, redirige a RegistroClientes
+      navigate("/registro-clientes");
     }
   }, [navigate]);
 
@@ -28,39 +27,30 @@ const UsuarioClientes = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
+    const { username, password, confirmPassword } = formData;
+    if (password !== confirmPassword) {
       alert("Las contraseñas no coinciden");
       return;
     }
 
     try {
-      // Recuperar los datos del cliente almacenados previamente
-      const clienteData = JSON.parse(sessionStorage.getItem("clienteData"));
-
-      // 1. Insertar en la tabla "usuarios" con el rol 3 (clientes)
+      // 1️⃣ Creamos el usuario en la tabla 'usuarios'
       const { data: usuarioData, error: usuarioError } = await supabase
         .from("usuarios")
         .insert([
-          {
-            nombre_usuario: formData.username,
-            contraseña: formData.password,
-            role_id: 3, // Rol fijo para clientes
-          },
+          { nombre_usuario: username, contraseña: password, role_id: 3 },
         ])
-        .select(); // Selecciona el registro insertado para obtener su id
-
+        .select("id")
+        .single();
       if (usuarioError) throw usuarioError;
-      if (!usuarioData || usuarioData.length === 0) throw new Error("Error al crear el usuario");
 
-      const usuarioId = usuarioData[0].id;
-
-      // 2. Insertar en la tabla "clientes" usando el id del usuario recién creado
+      // 2️⃣ Creamos el perfil en la tabla 'clientes'
+      const clienteData = JSON.parse(sessionStorage.getItem("clienteData"));
       const { error: clienteError } = await supabase
         .from("clientes")
         .insert([
           {
-            usuario_id: usuarioId,
+            usuario_id: usuarioData.id,
             nombre: clienteData.nombre,
             apellido_paterno: clienteData.apellidoPaterno,
             apellido_materno: clienteData.apellidoMaterno,
@@ -70,22 +60,31 @@ const UsuarioClientes = () => {
             nacionalidad: clienteData.nacionalidad,
             fecha_nacimiento: clienteData.fechaDeNacimiento,
             rfc: clienteData.rfc,
-            membresia_id: clienteData.membresia, // Asegúrate de que el valor enviado es correcto
+            membresia_id: clienteData.membresia,
           },
         ]);
-
       if (clienteError) {
-        // Si hay un error en la inserción del cliente, eliminamos el usuario
-        await supabase.from("usuarios").delete().eq("id", usuarioId);
+        // Si falla, deshacemos el usuario
+        await supabase.from("usuarios").delete().eq("id", usuarioData.id);
         throw clienteError;
       }
 
-      alert("Cuenta creada exitosamente");
+      // 3️⃣ Iniciar sesión automáticamente en Supabase Auth
+      const { data: loginData, error: loginError } = await supabase.auth.signIn({
+        email: clienteData.email,
+        password,
+      });
+      if (loginError || !loginData.session) {
+        throw loginError || new Error("No se obtuvo sesión tras el login");
+      }
+
+      // 4️⃣ Limpieza y redirección
       sessionStorage.removeItem("clienteData");
-      navigate("/pagina-principal");
+      navigate("/pagina-principal"); // cliente => ruta protegida
+
     } catch (error) {
-      console.error("Error:", error);
-      alert("Error al crear cuenta: " + error.message);
+      console.error("Error al crear cuenta o iniciar sesión:", error);
+      alert("Error: " + error.message);
     }
   };
 
