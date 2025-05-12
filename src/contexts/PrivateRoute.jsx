@@ -1,16 +1,35 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+// src/contexts/AuthContext.jsx
+import { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
-const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  const location = useLocation();
+const AuthContext = createContext();
 
-  if (loading) return <p>Cargando...</p>;
-  if (!user) {
-    // redirige a login pasando la ruta original
-    return <Navigate to={`/?redirect=${encodeURIComponent(location.pathname)}`} />;
-  }
-  return children;
+export const AuthProvider = ({ children }) => {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Al montar, recupera la sesión actual
+    const current = supabase.auth.session();
+    setSession(current);
+    setLoading(false);
+
+    // Suscríbete a cambios de auth
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setSession(newSession);
+      }
+    );
+    return () => listener.unsubscribe();
+  }, []);
+
+  const signOut = () => supabase.auth.signOut();
+
+  return (
+    <AuthContext.Provider value={{ session, loading, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export default PrivateRoute;
+export const useAuth = () => useContext(AuthContext);

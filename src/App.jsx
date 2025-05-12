@@ -39,6 +39,7 @@ export default function App() {
           {/* Public */}
           <Route path="/" element={<Login />} />
           <Route path="/registro-clientes" element={<RegistroClientes />} />
+          <Route path="/usuario-clientes" element={<UsuarioClientes />} />
 
           {/* Protected */}
           <Route element={<PrivateRoute redirectTo="/" />}>
@@ -46,7 +47,6 @@ export default function App() {
             <Route path="/perfil-cliente" element={<PerfilCliente />} />
             <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
             <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
-            <Route path="/usuario-clientes" element={<UsuarioClientes />} />
             <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/gestion-clientes" element={<GestionClientes />} />
