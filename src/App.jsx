@@ -22,36 +22,47 @@ import GestionVentas from "./components/GestionVentas";
 import GestionServicios from "./components/GestionServicios";
 import GestionMembresias from "./components/GestionMembresias";
 import HabitacionesCliente from "./components/HabitacionesCliente";
+
+import PrivateRoute from "./components/PrivateRoute";
+
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Públicas */}
         <Route path="/" element={<Login />} />
         <Route path="/registro-clientes" element={<RegistroClientes />} />
-        <Route path="/perfil-cliente" element={<PerfilCliente />} />
-        <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
-        <Route path="/pagina-principal" element={<PaginaPrincipal />} />
-        <Route path="/registrar-habitacion" element={<RegistrarHabitacion />} />
-        <Route path="/modificar-habitaciones" element={<ModificacionHabitaciones />} />
-        <Route path="/modificar-empleados" element={<ModificarEmpleados />} />
-        <Route path="/registro-empleados" element={<RegistroEmpleados />} />
-        <Route path="/turnos-empleados" element={<TurnosEmpleados />} />
-        <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
-        <Route path="/usuario-clientes" element={<UsuarioClientes />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/gestion-clientes" element={<GestionClientes />} />
-        <Route path="/gestion-empleados" element={<GestionEmpleados />} />
-        <Route path="/gestion-habitaciones" element={<GestionHabitaciones />} />
-        <Route path="/gestion-almacen" element={<GestionAlmacen />} />
-        <Route path="/gestion-restaurante" element={<GestionRestaurante />} />
-        <Route path="/gestion-ventas" element={<GestionVentas />} />
-        <Route path="/gestion-servicios" element={<GestionServicios />} />
-        <Route path="/gestion-membresias" element={<GestionMembresias />} />
-        <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
+
+        {/* Clientes (role_id === 3) */}
+        <Route element={<PrivateRoute allowedRoles={[3]} />}>
+          <Route path="/perfil-cliente" element={<PerfilCliente />} />
+          <Route path="/pagina-principal" element={<PaginaPrincipal />} />
+          <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
+          <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
+          <Route path="/usuario-clientes" element={<UsuarioClientes />} />
+          <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
+        </Route>
+
+        {/* Administradores (role_id === 1) */}
+        <Route element={<PrivateRoute allowedRoles={[1]} />}>
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/registrar-habitacion" element={<RegistrarHabitacion />} />
+          <Route path="/modificar-habitaciones" element={<ModificacionHabitaciones />} />
+          <Route path="/modificar-empleados" element={<ModificarEmpleados />} />
+          <Route path="/registro-empleados" element={<RegistroEmpleados />} />
+          <Route path="/turnos-empleados" element={<TurnosEmpleados />} />
+          <Route path="/gestion-clientes" element={<GestionClientes />} />
+          <Route path="/gestion-empleados" element={<GestionEmpleados />} />
+          <Route path="/gestion-habitaciones" element={<GestionHabitaciones />} />
+          <Route path="/gestion-almacen" element={<GestionAlmacen />} />
+          <Route path="/gestion-restaurante" element={<GestionRestaurante />} />
+          <Route path="/gestion-ventas" element={<GestionVentas />} />
+          <Route path="/gestion-servicios" element={<GestionServicios />} />
+          <Route path="/gestion-membresias" element={<GestionMembresias />} />
+        </Route>
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
