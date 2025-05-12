@@ -23,7 +23,8 @@ const ReservaHabitacion = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(`
+      .select(
+        `
         id,
         numero_habitacion,
         estado,
@@ -42,24 +43,44 @@ const ReservaHabitacion = () => {
       return;
     }
 
-    // Para cada registro, obtenemos la URL pública del bucket
-    const habitacionesConUrl = data.map((hab) => {
-      const { publicURL } = supabase
-        .storage
-        .from("habitaciones")
-        .getPublicUrl(hab.imagen_url || "");
-      return { ...hab, publicURL };
-    });
+    // Para cada registro, obtenemos la URL pública correctamente
+    const habitacionesConUrl = await Promise.all(
+      data.map(async (hab) => {
+        let publicURL = "";
+        if (hab.imagen_url) {
+          if (hab.imagen_url.startsWith("http")) {
+            publicURL = hab.imagen_url;
+          } else {
+            const { data: urlData, error: urlError } = await supabase
+              .storage
+              .from("habitaciones")
+              .getPublicUrl(hab.imagen_url);
+            if (urlError) {
+              console.error("Error obteniendo URL pública:", urlError);
+            } else {
+              publicURL = urlData.publicUrl;
+            }
+          }
+        }
+        return { ...hab, publicURL };
+      })
+    );
 
     setHabitaciones(habitacionesConUrl);
   };
 
+  // Si había una habitación preseleccionada, la sincronizamos con data obtenida
   useEffect(() => {
-  if (preseleccion && habitaciones.length) {
-    const coincide = habitaciones.find(h => h.id === preseleccion.id);
-    if (coincide) setHabitacionSeleccionada(coincide);
-  }
-}, [preseleccion, habitaciones]);
+    if (preseleccion && habitaciones.length) {
+      const coincide = habitaciones.find((h) => h.id === preseleccion.id);
+      if (coincide) setHabitacionSeleccionada(coincide);
+    }
+  }, [preseleccion, habitaciones]);
+
+  const handleReservar = () => {
+    // Aquí iría la lógica para confirmar reserva (no incluida en el ejemplo)
+    alert(`Reserva confirmada para habitación ${habitacionSeleccionada.numero_habitacion}`);
+  };
 
   return (
     <div className="reserva-container">
@@ -101,7 +122,6 @@ const ReservaHabitacion = () => {
 
       {habitacionSeleccionada && (
         <div className="habitacion-detalle">
-          {/* Muestra la imagen cargada desde Storage */}
           {habitacionSeleccionada.publicURL && (
             <img
               src={habitacionSeleccionada.publicURL}
@@ -115,34 +135,17 @@ const ReservaHabitacion = () => {
             Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
           </p>
           <p>
-            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona} {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1 ? "personas" : "persona"}
+            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
+            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
+              ? "personas"
+              : "persona"}
           </p>
+
+          <button className="btn-reservar" onClick={handleReservar}>
+            Confirmar Reserva
+          </button>
         </div>
       )}
-
-      <label>Número de Personas:</label>
-      <input
-        type="number"
-        value={numPersonas}
-        min="1"
-        onChange={(e) => setNumPersonas(e.target.value)}
-      />
-
-      <label>Nombre:</label>
-      <input
-        type="text"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-      />
-
-      <label>Email:</label>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <button className="btn-reservar">Confirmar Reserva</button>
     </div>
   );
 };
