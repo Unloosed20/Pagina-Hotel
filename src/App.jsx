@@ -1,19 +1,23 @@
-import { HashRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+// src/App.jsx
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import PrivateRoute from "./contexts/PrivateRoute";
 
 import Login from "./components/Login";
 import RegistroClientes from "./components/RegistroClientes";
+import UsuarioClientes from "./components/UsuarioClientes";
 import PerfilCliente from "./components/PerfilCliente";
 import FiltroDeHabitaciones from "./components/FiltroDeHabitaciones";
 import PaginaPrincipal from "./components/PaginaPrincipal";
+import ReservaHabitacion from "./components/ReservaHabitacion";
+import HabitacionesCliente from "./components/HabitacionesCliente";
+
+import AdminDashboard from "./components/AdminDashboard";
 import RegistrarHabitacion from "./components/RegistrarHabitacion";
 import ModificacionHabitaciones from "./components/ModificacionHabitaciones";
 import ModificarEmpleados from "./components/ModificarEmpleados";
 import RegistroEmpleados from "./components/RegistroEmpleados";
 import TurnosEmpleados from "./components/TurnosEmpleados";
-import ReservaHabitacion from "./components/ReservaHabitacion";
-import UsuarioClientes from  "./components/UsuarioClientes";
-import AdminDashboard from "./components/AdminDashboard";
 import GestionClientes from "./components/GestionClientes";
 import GestionEmpleados from "./components/GestionEmpleados";
 import GestionHabitaciones from "./components/GestionHabitaciones";
@@ -22,32 +26,27 @@ import GestionRestaurante from "./components/GestionRestaurante";
 import GestionVentas from "./components/GestionVentas";
 import GestionServicios from "./components/GestionServicios";
 import GestionMembresias from "./components/GestionMembresias";
-import HabitacionesCliente from "./components/HabitacionesCliente";
-
-// Wrapper for protected routes
-const PrivateRoute = ({ redirectTo = '/' }) => {
-  const { session } = useAuth();
-  const location = useLocation();
-  return session ? <Outlet /> : <Navigate to={`${redirectTo}?redirect=${location.pathname}`} replace />;
-};
 
 export default function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public */}
+          {/* Rutas públicas */}
           <Route path="/" element={<Login />} />
           <Route path="/registro-clientes" element={<RegistroClientes />} />
           <Route path="/usuario-clientes" element={<UsuarioClientes />} />
 
-          {/* Protected */}
+          {/* Rutas protegidas */}
           <Route element={<PrivateRoute redirectTo="/" />}>
+            {/* Cliente */}
             <Route path="/pagina-principal" element={<PaginaPrincipal />} />
             <Route path="/perfil-cliente" element={<PerfilCliente />} />
             <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
             <Route path="/reserva-habitaciones" element={<ReservaHabitacion />} />
             <Route path="/habitaciones-cliente" element={<HabitacionesCliente />} />
+
+            {/* Administración */}
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/gestion-clientes" element={<GestionClientes />} />
             <Route path="/gestion-empleados" element={<GestionEmpleados />} />
@@ -63,6 +62,9 @@ export default function App() {
             <Route path="/gestion-servicios" element={<GestionServicios />} />
             <Route path="/gestion-membresias" element={<GestionMembresias />} />
           </Route>
+
+          {/* Cualquier otra ruta va al login */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

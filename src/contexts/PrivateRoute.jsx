@@ -1,35 +1,23 @@
-// src/contexts/AuthContext.jsx
-import { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+// src/contexts/PrivateRoute.jsx
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
-const AuthContext = createContext();
+const PrivateRoute = ({ redirectTo = "/" }) => {
+  const { session, loading } = useAuth();
+  const location = useLocation();
 
-export const AuthProvider = ({ children }) => {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Mientras Supabase recupera la sesión, muestra un loader o nada
+  if (loading) {
+    return <p>Cargando…</p>;
+  }
 
-  useEffect(() => {
-    // Al montar, recupera la sesión actual
-    const current = supabase.auth.session();
-    setSession(current);
-    setLoading(false);
-
-    // Suscríbete a cambios de auth
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-      }
-    );
-    return () => listener.unsubscribe();
-  }, []);
-
-  const signOut = () => supabase.auth.signOut();
-
-  return (
-    <AuthContext.Provider value={{ session, loading, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  // Si hay sesión, renderiza las rutas hijas; si no, redirige al login
+  return session
+    ? <Outlet />
+    : <Navigate
+        to={`${redirectTo}?redirect=${encodeURIComponent(location.pathname)}`}
+        replace
+      />;
 };
 
-export const useAuth = () => useContext(AuthContext);
+export default PrivateRoute;
