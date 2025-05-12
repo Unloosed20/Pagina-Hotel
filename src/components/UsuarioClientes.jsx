@@ -1,7 +1,7 @@
-// src/RegistroUsuario.jsx
+// src/components/UsuarioClientes.jsx
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./UsuarioClientes.css";
 
 const UsuarioClientes = () => {
@@ -13,7 +13,6 @@ const UsuarioClientes = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Recuperar datos del cliente almacenados en sessionStorage (viene de RegistroClientes)
     const clienteData = sessionStorage.getItem("clienteData");
     if (!clienteData) {
       alert("No hay datos de cliente. Redirigiendo...");
@@ -33,59 +32,68 @@ const UsuarioClientes = () => {
       return;
     }
 
-    try {
-      // 1️⃣ Creamos el usuario en la tabla 'usuarios'
-      const { data: usuarioData, error: usuarioError } = await supabase
-        .from("usuarios")
-        .insert([
-          { nombre_usuario: username, contraseña: password, role_id: 3 },
-        ])
-        .select("id")
-        .single();
-      if (usuarioError) throw usuarioError;
-
-      // 2️⃣ Creamos el perfil en la tabla 'clientes'
-      const clienteData = JSON.parse(sessionStorage.getItem("clienteData"));
-      const { error: clienteError } = await supabase
-        .from("clientes")
-        .insert([
-          {
-            usuario_id: usuarioData.id,
-            nombre: clienteData.nombre,
-            apellido_paterno: clienteData.apellidoPaterno,
-            apellido_materno: clienteData.apellidoMaterno,
-            email: clienteData.email,
-            telefono: clienteData.telefono,
-            direccion: clienteData.direccion,
-            nacionalidad: clienteData.nacionalidad,
-            fecha_nacimiento: clienteData.fechaDeNacimiento,
-            rfc: clienteData.rfc,
-            membresia_id: clienteData.membresia,
-          },
-        ]);
-      if (clienteError) {
-        // Si falla, deshacemos el usuario
-        await supabase.from("usuarios").delete().eq("id", usuarioData.id);
-        throw clienteError;
-      }
-
-      // 3️⃣ Iniciar sesión automáticamente en Supabase Auth
-      const { data: loginData, error: loginError } = await supabase.auth.signIn({
-        email: clienteData.email,
-        password,
-      });
-      if (loginError || !loginData.session) {
-        throw loginError || new Error("No se obtuvo sesión tras el login");
-      }
-
-      // 4️⃣ Limpieza y redirección
-      sessionStorage.removeItem("clienteData");
-      navigate("/pagina-principal"); // cliente => ruta protegida
-
-    } catch (error) {
-      console.error("Error al crear cuenta o iniciar sesión:", error);
-      alert("Error: " + error.message);
+    // 1️⃣ Registra en Supabase Auth usando el email
+    const clienteData = JSON.parse(sessionStorage.getItem("clienteData"));
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: clienteData.email,
+      password,
+    });
+    if (signUpError) {
+      console.error("Error en Auth.signUp:", signUpError);
+      alert("No se pudo crear cuenta de autenticación: " + signUpError.message);
+      return;
     }
+
+    // 2️⃣ Inserta en tu tabla 'usuarios' usando el UUID de Auth
+    const { data: usuarioData, error: usuarioError } = await supabase
+      .from("usuarios")
+      .insert([
+        {
+          auth_id: signUpData.user.id,      // campo nuevo en tu tabla para enlazar
+          nombre_usuario: username,
+          role_id: 3,
+        },
+      ])
+      .select("id")
+      .single();
+    if (usuarioError) {
+      console.error("Error insertando en usuarios:", usuarioError);
+      alert("Error al guardar usuario: " + usuarioError.message);
+      // opcional: borrar la cuenta de Auth si quieres deshacer
+      await supabase.auth.api.deleteUser(signUpData.user.id);
+      return;
+    }
+
+    // 3️⃣ Inserta en la tabla 'clientes'
+    const { error: clienteError } = await supabase
+      .from("clientes")
+      .insert([
+        {
+          usuario_id: usuarioData.id,
+          nombre: clienteData.nombre,
+          apellido_paterno: clienteData.apellidoPaterno,
+          apellido_materno: clienteData.apellidoMaterno,
+          email: clienteData.email,
+          telefono: clienteData.telefono,
+          direccion: clienteData.direccion,
+          nacionalidad: clienteData.nacionalidad,
+          fecha_nacimiento: clienteData.fechaDeNacimiento,
+          rfc: clienteData.rfc,
+          membresia_id: clienteData.membresia,
+        },
+      ]);
+    if (clienteError) {
+      console.error("Error insertando en clientes:", clienteError);
+      alert("Error al guardar perfil de cliente: " + clienteError.message);
+      // opcional: deshacer usuario y Auth
+      await supabase.from("usuarios").delete().eq("id", usuarioData.id);
+      await supabase.auth.api.deleteUser(signUpData.user.id);
+      return;
+    }
+
+    // 4️⃣ ¡Listo! la sesión de Supabase ya está activa tras el signUp
+    sessionStorage.removeItem("clienteData");
+    navigate("/pagina-principal");
   };
 
   return (
@@ -123,4 +131,3 @@ const UsuarioClientes = () => {
 };
 
 export default UsuarioClientes;
-
