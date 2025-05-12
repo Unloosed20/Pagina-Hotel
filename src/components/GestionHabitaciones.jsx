@@ -13,8 +13,8 @@ const GestionHabitaciones = () => {
     numero_habitacion: "",
     estado: "Disponible",
     tipo: "",
-    imagen_file: null,      // Archivo seleccionado
-    imagen_url: ""          // URL en Supabase
+    imagen_file: null,
+    imagen_url: ""
   });
 
   const [formTipo, setFormTipo] = useState({
@@ -95,25 +95,30 @@ const GestionHabitaciones = () => {
 
     let url = formData.imagen_url;
 
-    // Si cargó un archivo nuevo, súbelo primero
     if (formData.imagen_file) {
+      // Generar nombre de archivo válido
       const fileExt = formData.imagen_file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
+
+      // Subir a Storage
       const { error: uploadError } = await supabase
         .storage
         .from("habitaciones")
         .upload(fileName, formData.imagen_file, { upsert: true });
-
       if (uploadError) {
         return alert("Error subiendo imagen: " + uploadError.message);
       }
 
-      const { publicURL } = supabase
+      // Obtener URL pública
+      const { data: publicUrlData, error: urlError } = supabase
         .storage
         .from("habitaciones")
         .getPublicUrl(fileName);
-
-      url = publicURL;
+      if (urlError) {
+        console.error("Error obteniendo la URL pública:", urlError);
+      } else {
+        url = publicUrlData.publicUrl;
+      }
     }
 
     const payload = {
