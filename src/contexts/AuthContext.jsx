@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -9,18 +8,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Al montar, recupera la sesión actual
-    const current = supabase.auth.session();
-    setSession(current);
-    setLoading(false);
+    // Al montar, obtenemos la sesión actual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-    // Suscríbete a cambios de auth
-    const { data: listener } = supabase.auth.onAuthStateChange(
+    // Escuchamos cambios de auth
+    const { subscription } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
         setSession(newSession);
       }
     );
-    return () => listener.unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   const signOut = () => supabase.auth.signOut();
