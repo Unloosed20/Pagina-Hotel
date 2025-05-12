@@ -32,7 +32,8 @@ const ReservaHabitacion = () => {
   const fetchHabitaciones = async () => {
     const { data, error } = await supabase
       .from("habitaciones")
-      .select(`
+      .select(
+        `
         id,
         numero_habitacion,
         estado,
@@ -48,12 +49,13 @@ const ReservaHabitacion = () => {
 
     if (error) {
       console.error("Error al cargar habitaciones:", error);
+      setError("No se pudieron cargar las habitaciones.");
       return;
     }
 
     const habitacionesConUrl = await Promise.all(
       data.map(async (hab) => {
-        let publicURL = hab.imagen_url.startsWith("http") ? hab.imagen_url : "";
+        let publicURL = hab.imagen_url?.startsWith("http") ? hab.imagen_url : "";
         if (!publicURL && hab.imagen_url) {
           const { data: urlData, error: urlError } = await supabase
             .storage
@@ -90,30 +92,45 @@ const ReservaHabitacion = () => {
       return;
     }
 
+    // Obtener y validar user
+    const userRaw = localStorage.getItem("user");
+    if (!userRaw) {
+      setError("Debes iniciar sesión para reservar.");
+      return;
+    }
+    let user;
     try {
-      // 1. Obtener user y luego su cliente_id en la tabla clientes
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user || !user.id) throw new Error("No hay usuario logueado");
+      user = JSON.parse(userRaw);
+    } catch {
+      setError("Error de sesión. Vuelve a iniciar sesión.");
+      return;
+    }
+    if (!user?.id) {
+      setError("Sesión inválida. Inicia sesión nuevamente.");
+      return;
+    }
 
-      // Asumimos que en tu tabla 'clientes' hay un campo 'usuario_id' que referencia a usuarios.id
-      let { data: clienteRecord, error: clienteError } = await supabase
+    try {
+      // Obtener cliente en tabla 'clientes'
+      const { data: clienteData, error: clienteError } = await supabase
         .from("clientes")
         .select("id")
         .eq("usuario_id", user.id)
         .single();
 
-      if (clienteError || !clienteRecord) {
-        throw new Error("No se encontró el registro de cliente para este usuario.");
+      if (clienteError || !clienteData) {
+        setError("No se encontró perfil de cliente.");
+        return;
       }
-      const clienteId = clienteRecord.id;
+      const clienteId = clienteData.id;
 
-      // 2. Insertar en reservas (fechas en ISO)
+      // 1. Insertar en reservas
       const { data: reservaData, error: reservaError } = await supabase
         .from("reservas")
         .insert([
           {
             cliente_id: clienteId,
-            fecha_inicio: fechaEntrada.toISOString().split("T")[0], // YYYY-MM-DD
+            fecha_inicio: fechaEntrada.toISOString().split("T")[0],
             fecha_fin: fechaSalida.toISOString().split("T")[0],
             estado: "Confirmada"
           }
@@ -121,7 +138,7 @@ const ReservaHabitacion = () => {
         .single();
       if (reservaError) throw reservaError;
 
-      // 3. Link Reserva-Habitación
+      // 2. Relacionar con habitación
       const { error: rhError } = await supabase
         .from("reservas_habitaciones")
         .insert([
@@ -129,7 +146,7 @@ const ReservaHabitacion = () => {
         ]);
       if (rhError) throw rhError;
 
-      // 4. Crear factura pendiente
+      // 3. Crear factura pendiente
       const { data: facturaData, error: facturaError } = await supabase
         .from("facturas")
         .insert([
@@ -138,17 +155,17 @@ const ReservaHabitacion = () => {
             reserva_id: reservaData.id,
             total: total,
             estado: "Pendiente",
-            rfc_cliente: "" // opcional
+            rfc_cliente: ""
           }
         ])
         .single();
       if (facturaError) throw facturaError;
 
-      // 5. Redirigir a pago
+      // 4. Redirigir a pago
       navigate("/pago", { state: { factura: facturaData, total } });
     } catch (err) {
       console.error("Error en handleReservar:", err);
-      setError(err.message || "Error al procesar la reserva. Intenta nuevamente.");
+      setError(err.message || "Error al procesar la reserva.");
     }
   };
 
@@ -204,7 +221,7 @@ const ReservaHabitacion = () => {
             Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
           </p>
           <p>
-            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
+            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona} {" "}
             {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
               ? "personas"
               : "persona"}
