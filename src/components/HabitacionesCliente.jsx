@@ -32,16 +32,12 @@ const HabitacionesCliente = () => {
       return;
     }
 
-    // Determinar URL correcta para cada imagen
     const habitacionesConURL = data.map((h) => {
       let publicURL = "";
-
       if (h.imagen_url) {
-        // Si stored imagen_url ya es URL pública, úsala directamente
         if (h.imagen_url.startsWith("http")) {
           publicURL = h.imagen_url;
         } else {
-          // Si solo se almacenó el path, obtener URL desde Supabase Storage
           const { data: urlData, error: urlError } = supabase
             .storage
             .from("habitaciones")
@@ -53,7 +49,6 @@ const HabitacionesCliente = () => {
           }
         }
       }
-
       return { ...h, publicURL };
     });
 
@@ -67,7 +62,8 @@ const HabitacionesCliente = () => {
   return (
     <div className="hc-container">
       <h1 className="hc-title">Nuestras Habitaciones</h1>
-      <div className="hc-grid">
+      {/* Scroll container para cards */}
+      <div className="hc-grid" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
         {habitaciones.map((h) => (
           <div key={h.id} className="hc-card">
             {h.publicURL && (
