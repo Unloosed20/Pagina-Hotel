@@ -1,7 +1,7 @@
-// src/components/UsuarioClientes.jsx
+// src/RegistroUsuario.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta es correcta
 import "./UsuarioClientes.css";
 
 const UsuarioClientes = () => {
@@ -10,13 +10,15 @@ const UsuarioClientes = () => {
     password: "",
     confirmPassword: "",
   });
+
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Recuperar datos del cliente almacenados en sessionStorage (viene de RegistroClientes)
     const clienteData = sessionStorage.getItem("clienteData");
     if (!clienteData) {
       alert("No hay datos de cliente. Redirigiendo...");
-      navigate("/registro-clientes");
+      navigate("/registro-clientes"); // Si no hay datos, redirige a RegistroClientes
     }
   }, [navigate]);
 
@@ -26,74 +28,65 @@ const UsuarioClientes = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { username, password, confirmPassword } = formData;
-    if (password !== confirmPassword) {
+
+    if (formData.password !== formData.confirmPassword) {
       alert("Las contraseñas no coinciden");
       return;
     }
 
-    // 1️⃣ Registra en Supabase Auth usando el email
-    const clienteData = JSON.parse(sessionStorage.getItem("clienteData"));
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: clienteData.email,
-      password,
-    });
-    if (signUpError) {
-      console.error("Error en Auth.signUp:", signUpError);
-      alert("No se pudo crear cuenta de autenticación: " + signUpError.message);
-      return;
-    }
+    try {
+      // Recuperar los datos del cliente almacenados previamente
+      const clienteData = JSON.parse(sessionStorage.getItem("clienteData"));
 
-    // 2️⃣ Inserta en tu tabla 'usuarios' usando el UUID de Auth
-    const { data: usuarioData, error: usuarioError } = await supabase
-      .from("usuarios")
-      .insert([
-        {
-          auth_id: signUpData.user.id,      // campo nuevo en tu tabla para enlazar
-          nombre_usuario: username,
-          role_id: 3,
-        },
-      ])
-      .select("id")
-      .single();
-    if (usuarioError) {
-      console.error("Error insertando en usuarios:", usuarioError);
-      alert("Error al guardar usuario: " + usuarioError.message);
-      // opcional: borrar la cuenta de Auth si quieres deshacer
-      await supabase.auth.api.deleteUser(signUpData.user.id);
-      return;
-    }
+      // 1. Insertar en la tabla "usuarios" con el rol 3 (clientes)
+      const { data: usuarioData, error: usuarioError } = await supabase
+        .from("usuarios")
+        .insert([
+          {
+            nombre_usuario: formData.username,
+            contraseña: formData.password,
+            role_id: 3, // Rol fijo para clientes
+          },
+        ])
+        .select(); // Selecciona el registro insertado para obtener su id
 
-    // 3️⃣ Inserta en la tabla 'clientes'
-    const { error: clienteError } = await supabase
-      .from("clientes")
-      .insert([
-        {
-          usuario_id: usuarioData.id,
-          nombre: clienteData.nombre,
-          apellido_paterno: clienteData.apellidoPaterno,
-          apellido_materno: clienteData.apellidoMaterno,
-          email: clienteData.email,
-          telefono: clienteData.telefono,
-          direccion: clienteData.direccion,
-          nacionalidad: clienteData.nacionalidad,
-          fecha_nacimiento: clienteData.fechaDeNacimiento,
-          rfc: clienteData.rfc,
-          membresia_id: clienteData.membresia,
-        },
-      ]);
-    if (clienteError) {
-      console.error("Error insertando en clientes:", clienteError);
-      alert("Error al guardar perfil de cliente: " + clienteError.message);
-      // opcional: deshacer usuario y Auth
-      await supabase.from("usuarios").delete().eq("id", usuarioData.id);
-      await supabase.auth.api.deleteUser(signUpData.user.id);
-      return;
-    }
+      if (usuarioError) throw usuarioError;
+      if (!usuarioData || usuarioData.length === 0) throw new Error("Error al crear el usuario");
 
-    // 4️⃣ ¡Listo! la sesión de Supabase ya está activa tras el signUp
-    sessionStorage.removeItem("clienteData");
-    navigate("/pagina-principal");
+      const usuarioId = usuarioData[0].id;
+
+      // 2. Insertar en la tabla "clientes" usando el id del usuario recién creado
+      const { error: clienteError } = await supabase
+        .from("clientes")
+        .insert([
+          {
+            usuario_id: usuarioId,
+            nombre: clienteData.nombre,
+            apellido_paterno: clienteData.apellidoPaterno,
+            apellido_materno: clienteData.apellidoMaterno,
+            email: clienteData.email,
+            telefono: clienteData.telefono,
+            direccion: clienteData.direccion,
+            nacionalidad: clienteData.nacionalidad,
+            fecha_nacimiento: clienteData.fechaDeNacimiento,
+            rfc: clienteData.rfc,
+            membresia_id: clienteData.membresia, // Asegúrate de que el valor enviado es correcto
+          },
+        ]);
+
+      if (clienteError) {
+        // Si hay un error en la inserción del cliente, eliminamos el usuario
+        await supabase.from("usuarios").delete().eq("id", usuarioId);
+        throw clienteError;
+      }
+
+      alert("Cuenta creada exitosamente");
+      sessionStorage.removeItem("clienteData");
+      navigate("/pagina-principal");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error al crear cuenta: " + error.message);
+    }
   };
 
   return (
@@ -131,3 +124,4 @@ const UsuarioClientes = () => {
 };
 
 export default UsuarioClientes;
+
