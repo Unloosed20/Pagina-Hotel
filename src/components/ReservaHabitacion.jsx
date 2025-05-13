@@ -240,7 +240,7 @@ const ReservaHabitacion = () => {
       // await supabase.from('habitaciones').update({ estado: 'Ocupada' }).eq('id', habitacionSeleccionada.id);
 
       // 5. Redirigir a la página de pago con los datos de la factura
-      navigate("/pago", {
+      navigate("/pagos", {
         state: { factura: facturaData, total: total, reserva: reservaData },
       });
 
