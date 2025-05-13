@@ -44,7 +44,8 @@ const ReservaHabitacion = () => {
           numero_persona,
           precio_noche
         )
-      `)
+      `
+      )
       .eq("estado", "Disponible");
 
     if (error) {
@@ -82,7 +83,7 @@ const ReservaHabitacion = () => {
   const handleReservar = async () => {
     setError(null);
 
-    // Validaciones
+    // Validaciones básicas
     if (!fechaEntrada || !fechaSalida) {
       setError("Selecciona fechas de entrada y salida.");
       return;
@@ -92,12 +93,12 @@ const ReservaHabitacion = () => {
       return;
     }
 
-    // Obtener y validar user
     const userRaw = localStorage.getItem("user");
     if (!userRaw) {
       setError("Debes iniciar sesión para reservar.");
       return;
     }
+
     let user;
     try {
       user = JSON.parse(userRaw);
@@ -111,13 +112,14 @@ const ReservaHabitacion = () => {
     }
 
     try {
-      // Obtener cliente en tabla 'clientes'
+      // Obtener cliente y su RFC
       const { data: clienteData, error: clienteError } = await supabase
         .from("clientes")
-        .select("id")
+        .select("id, rfc")
         .eq("usuario_id", user.id)
         .single();
 
+      console.log("clienteError:", clienteError, "clienteData:", clienteData);
       if (clienteError || !clienteData) {
         setError("No se encontró perfil de cliente.");
         return;
@@ -132,21 +134,43 @@ const ReservaHabitacion = () => {
             cliente_id: clienteId,
             fecha_inicio: fechaEntrada.toISOString().split("T")[0],
             fecha_fin: fechaSalida.toISOString().split("T")[0],
-            estado: "Confirmada"
-          }
+            estado: "Confirmada",
+          },
         ])
         .single();
-      if (reservaError) throw reservaError;
+
+      console.log("reservaError:", reservaError, "reservaData:", reservaData);
+      if (reservaError) {
+        setError("Error insertando reserva: " + reservaError.message);
+        return;
+      }
 
       // 2. Relacionar con habitación
-      const { error: rhError } = await supabase
+      const { data: rhData, error: rhError } = await supabase
         .from("reservas_habitaciones")
         .insert([
-          { reserva_id: reservaData.id, habitacion_id: habitacionSeleccionada.id }
+          {
+            reserva_id: reservaData.id,
+            habitacion_id: habitacionSeleccionada.id,
+          },
         ]);
-      if (rhError) throw rhError;
 
-      // 3. Crear factura pendiente
+      console.log("rhError:", rhError, "rhData:", rhData);
+      if (rhError) {
+        setError("Error al relacionar habitación: " + rhError.message);
+        return;
+      }
+
+      // 2.b Actualizar estado de la habitación a "Ocupada"
+      const { error: updateError } = await supabase
+        .from("habitaciones")
+        .update({ estado: "Ocupada" })
+        .eq("id", habitacionSeleccionada.id);
+      if (updateError) {
+        console.warn("No se pudo actualizar estado de habitación:", updateError);
+      }
+
+      // 3. Crear factura pendiente usando el RFC real
       const { data: facturaData, error: facturaError } = await supabase
         .from("facturas")
         .insert([
@@ -155,16 +179,21 @@ const ReservaHabitacion = () => {
             reserva_id: reservaData.id,
             total: total,
             estado: "Pendiente",
-            rfc_cliente: ""
-          }
+            rfc_cliente: clienteData.rfc,
+          },
         ])
         .single();
-      if (facturaError) throw facturaError;
+
+      console.log("facturaError:", facturaError, "facturaData:", facturaData);
+      if (facturaError) {
+        setError("Error creando factura: " + facturaError.message);
+        return;
+      }
 
       // 4. Redirigir a pago
       navigate("/pago", { state: { factura: facturaData, total } });
     } catch (err) {
-      console.error("Error en handleReservar:", err);
+      console.error("Error genérico en handleReservar:", err);
       setError(err.message || "Error al procesar la reserva.");
     }
   };
@@ -201,7 +230,8 @@ const ReservaHabitacion = () => {
         <option value="">Selecciona...</option>
         {habitaciones.map((hab) => (
           <option key={hab.id} value={hab.id}>
-            #{hab.numero_habitacion} — {hab.tipos_habitaciones.tipo} (${hab.tipos_habitaciones.precio_noche}/noche)
+            #{hab.numero_habitacion} — {hab.tipos_habitaciones.tipo} ($
+            {hab.tipos_habitaciones.precio_noche}/noche)
           </option>
         ))}
       </select>
@@ -221,7 +251,7 @@ const ReservaHabitacion = () => {
             Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
           </p>
           <p>
-            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona} {" "}
+            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
             {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
               ? "personas"
               : "persona"}
