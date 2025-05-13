@@ -9,81 +9,83 @@ import "./ReservaHabitacion.css";
 const ReservaHabitacion = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const preseleccion = location.state?.habitacion;
+  const preseleccion = location.state?.habitacion || null;
 
   const [fechaEntrada, setFechaEntrada] = useState(null);
   const [fechaSalida, setFechaSalida] = useState(null);
   const [habitaciones, setHabitaciones] = useState([]);
-  const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(preseleccion || null);
+  const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(preseleccion);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
 
+  // Carga inicial de habitaciones
   useEffect(() => {
-    fetchHabitaciones();
+    (async () => {
+      const { data, error: fetchError } = await supabase
+        .from("habitaciones")
+        .select(`
+          id,
+          numero_habitacion,
+          estado,
+          imagen_url,
+          tipos_habitaciones (
+            tipo,
+            descripcion,
+            numero_persona,
+            precio_noche
+          )
+        `)
+        .eq("estado", "Disponible");
+
+      if (fetchError) {
+        console.error(fetchError);
+        setError("No se pudieron cargar las habitaciones.");
+        return;
+      }
+
+      // Generar URLs públicas si es necesario
+      const withUrls = await Promise.all(
+        data.map(async (h) => {
+          let publicURL = "";
+          if (h.imagen_url?.startsWith("http")) {
+            publicURL = h.imagen_url;
+          } else if (h.imagen_url) {
+            const { data: urlData, error: urlErr } = supabase
+              .storage
+              .from("habitaciones")
+              .getPublicUrl(h.imagen_url);
+            if (!urlErr) publicURL = urlData.publicUrl;
+          }
+          return { ...h, publicURL };
+        })
+      );
+
+      setHabitaciones(withUrls);
+    })();
   }, []);
 
+  // Sincronizar fallback de preselección
   useEffect(() => {
     if (preseleccion && habitaciones.length) {
-      const coincide = habitaciones.find((h) => h.id === preseleccion.id);
-      if (coincide) setHabitacionSeleccionada(coincide);
+      const encontrada = habitaciones.find((h) => h.id === preseleccion.id);
+      if (encontrada) setHabitacionSeleccionada(encontrada);
     }
   }, [preseleccion, habitaciones]);
 
-  const fetchHabitaciones = async () => {
-    const { data, error } = await supabase
-      .from("habitaciones")
-      .select(
-        `
-        id,
-        numero_habitacion,
-        estado,
-        imagen_url,
-        tipos_habitaciones (
-          tipo,
-          descripcion,
-          numero_persona,
-          precio_noche
-        )
-      `
-      )
-      .eq("estado", "Disponible");
-
-    if (error) {
-      console.error("Error al cargar habitaciones:", error);
-      setError("No se pudieron cargar las habitaciones.");
-      return;
-    }
-
-    const habitacionesConUrl = await Promise.all(
-      data.map(async (hab) => {
-        let publicURL = hab.imagen_url?.startsWith("http") ? hab.imagen_url : "";
-        if (!publicURL && hab.imagen_url) {
-          const { data: urlData, error: urlError } = await supabase
-            .storage
-            .from("habitaciones")
-            .getPublicUrl(hab.imagen_url);
-          if (!urlError) publicURL = urlData.publicUrl;
-        }
-        return { ...hab, publicURL };
-      })
-    );
-
-    setHabitaciones(habitacionesConUrl);
-  };
-
-  // Calcular total cuando cambian fechas o habitación
+  // Calcular total
   useEffect(() => {
     if (fechaEntrada && fechaSalida && habitacionSeleccionada) {
-      const diff = Math.ceil((fechaSalida - fechaEntrada) / (1000 * 60 * 60 * 24));
-      const precio = habitacionSeleccionada.tipos_habitaciones.precio_noche;
-      setTotal(diff * precio);
+      const noches = Math.ceil(
+        (fechaSalida - fechaEntrada) / (1000 * 60 * 60 * 24)
+      );
+      setTotal(noches * habitacionSeleccionada.tipos_habitaciones.precio_noche);
     }
   }, [fechaEntrada, fechaSalida, habitacionSeleccionada]);
 
   const handleReservar = async () => {
     setError(null);
 
-    // Validaciones básicas
+    // 1) Validaciones de UI
     if (!fechaEntrada || !fechaSalida) {
       setError("Selecciona fechas de entrada y salida.");
       return;
@@ -93,15 +95,15 @@ const ReservaHabitacion = () => {
       return;
     }
 
-    const userRaw = localStorage.getItem("user");
-    if (!userRaw) {
+    // 2) Usuario autenticado
+    const raw = localStorage.getItem("user");
+    if (!raw) {
       setError("Debes iniciar sesión para reservar.");
       return;
     }
-
     let user;
     try {
-      user = JSON.parse(userRaw);
+      user = JSON.parse(raw);
     } catch {
       setError("Error de sesión. Vuelve a iniciar sesión.");
       return;
@@ -112,89 +114,77 @@ const ReservaHabitacion = () => {
     }
 
     try {
-      // Obtener cliente y su RFC
-      const { data: clienteData, error: clienteError } = await supabase
+      // 3) Obtener cliente y RFC
+      const { data: cliente, error: errCli } = await supabase
         .from("clientes")
         .select("id, rfc")
         .eq("usuario_id", user.id)
         .single();
-
-      console.log("clienteError:", clienteError, "clienteData:", clienteData);
-      if (clienteError || !clienteData) {
+      if (errCli || !cliente?.id) {
+        console.error(errCli);
         setError("No se encontró perfil de cliente.");
         return;
       }
-      const clienteId = clienteData.id;
 
-      // 1. Insertar en reservas
-      const { data: reservaData, error: reservaError } = await supabase
+      // 4) Insertar reserva
+      const { data: reserva, error: errRes } = await supabase
         .from("reservas")
-        .insert([
-          {
-            cliente_id: clienteId,
-            fecha_inicio: fechaEntrada.toISOString().split("T")[0],
-            fecha_fin: fechaSalida.toISOString().split("T")[0],
-            estado: "Confirmada",
-          },
-        ])
+        .insert([{
+          cliente_id: cliente.id,
+          fecha_inicio: fechaEntrada.toISOString().slice(0, 10),
+          fecha_fin: fechaSalida.toISOString().slice(0, 10),
+          estado: "Confirmada",
+        }])
         .single();
-
-      console.log("reservaError:", reservaError, "reservaData:", reservaData);
-      if (reservaError) {
-        setError("Error insertando reserva: " + reservaError.message);
+      if (errRes || !reserva?.id) {
+        console.error(errRes);
+        setError("No se pudo crear la reserva.");
         return;
       }
 
-      // 2. Relacionar con habitación
-      const { data: rhData, error: rhError } = await supabase
+      // 5) Relacionar habitación
+      const { error: errRh } = await supabase
         .from("reservas_habitaciones")
-        .insert([
-          {
-            reserva_id: reservaData.id,
-            habitacion_id: habitacionSeleccionada.id,
-          },
-        ]);
-
-      console.log("rhError:", rhError, "rhData:", rhData);
-      if (rhError) {
-        setError("Error al relacionar habitación: " + rhError.message);
+        .insert([{
+          reserva_id: reserva.id,
+          habitacion_id: habitacionSeleccionada.id,
+        }]);
+      if (errRh) {
+        console.error(errRh);
+        setError("No se pudo asignar la habitación a la reserva.");
         return;
       }
 
-      // 2.b Actualizar estado de la habitación a "Ocupada"
-      const { error: updateError } = await supabase
+      // 6) Actualizar estado de habitacion
+      const { error: errUpd } = await supabase
         .from("habitaciones")
         .update({ estado: "Ocupada" })
         .eq("id", habitacionSeleccionada.id);
-      if (updateError) {
-        console.warn("No se pudo actualizar estado de habitación:", updateError);
-      }
+      if (errUpd) console.warn("No se actualizó estado de habitación:", errUpd);
 
-      // 3. Crear factura pendiente usando el RFC real
-      const { data: facturaData, error: facturaError } = await supabase
+      // 7) Crear factura pendiente
+      const { data: factura, error: errFac } = await supabase
         .from("facturas")
-        .insert([
-          {
-            cliente_id: clienteId,
-            reserva_id: reservaData.id,
-            total: total,
-            estado: "Pendiente",
-            rfc_cliente: clienteData.rfc,
-          },
-        ])
+        .insert([{
+          cliente_id: cliente.id,
+          reserva_id: reserva.id,
+          total,
+          estado: "Pendiente",
+          rfc_cliente: cliente.rfc,
+        }])
         .single();
-
-      console.log("facturaError:", facturaError, "facturaData:", facturaData);
-      if (facturaError) {
-        setError("Error creando factura: " + facturaError.message);
+      if (errFac || !factura?.id) {
+        console.error(errFac);
+        setError("No se pudo generar la factura.");
         return;
       }
 
-      // 4. Redirigir a pago
-      navigate("/pago", { state: { factura: facturaData, total } });
+      // 8) Redirigir a pago
+      navigate("/pago", { state: { factura, total } });
+
     } catch (err) {
-      console.error("Error genérico en handleReservar:", err);
-      setError(err.message || "Error al procesar la reserva.");
+      console.error("Error inesperado:", err);
+      setError("Ocurrió un error procesando tu reserva.");
     }
   };
 
@@ -206,7 +196,7 @@ const ReservaHabitacion = () => {
       <label>Fecha de Entrada:</label>
       <DatePicker
         selected={fechaEntrada}
-        onChange={(date) => setFechaEntrada(date)}
+        onChange={setFechaEntrada}
         minDate={new Date()}
         className="input"
       />
@@ -214,8 +204,8 @@ const ReservaHabitacion = () => {
       <label>Fecha de Salida:</label>
       <DatePicker
         selected={fechaSalida}
-        onChange={(date) => setFechaSalida(date)}
-        minDate={fechaEntrada}
+        onChange={setFechaSalida}
+        minDate={fechaEntrada || new Date()}
         className="input"
       />
 
@@ -223,15 +213,16 @@ const ReservaHabitacion = () => {
       <select
         value={habitacionSeleccionada?.id || ""}
         onChange={(e) => {
-          const hab = habitaciones.find((h) => h.id === +e.target.value);
+          const id = Number(e.target.value);
+          const hab = habitaciones.find((h) => h.id === id) || null;
           setHabitacionSeleccionada(hab);
         }}
       >
         <option value="">Selecciona...</option>
-        {habitaciones.map((hab) => (
-          <option key={hab.id} value={hab.id}>
-            #{hab.numero_habitacion} — {hab.tipos_habitaciones.tipo} ($
-            {hab.tipos_habitaciones.precio_noche}/noche)
+        {habitaciones.map((h) => (
+          <option key={h.id} value={h.id}>
+            #{h.numero_habitacion} — {h.tipos_habitaciones.tipo} ($
+            {h.tipos_habitaciones.precio_noche}/noche)
           </option>
         ))}
       </select>
@@ -248,10 +239,12 @@ const ReservaHabitacion = () => {
           <h3>{habitacionSeleccionada.tipos_habitaciones.tipo}</h3>
           <p>{habitacionSeleccionada.tipos_habitaciones.descripcion}</p>
           <p className="precio">
-            Precio por noche: ${habitacionSeleccionada.tipos_habitaciones.precio_noche}
+            Precio por noche: $
+            {habitacionSeleccionada.tipos_habitaciones.precio_noche}
           </p>
           <p>
-            Capacidad: {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
+            Capacidad:{" "}
+            {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
             {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
               ? "personas"
               : "persona"}
