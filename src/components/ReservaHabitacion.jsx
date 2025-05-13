@@ -18,7 +18,7 @@ const ReservaHabitacion = () => {
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
 
-  // Carga inicial de habitaciones
+  // Carga inicial de habitaciones...
   useEffect(() => {
     (async () => {
       const { data, error: fetchError } = await supabase
@@ -36,14 +36,11 @@ const ReservaHabitacion = () => {
           )
         `)
         .eq("estado", "Disponible");
-
       if (fetchError) {
         console.error(fetchError);
         setError("No se pudieron cargar las habitaciones.");
         return;
       }
-
-      // Generar URLs públicas si es necesario
       const withUrls = await Promise.all(
         data.map(async (h) => {
           let publicURL = "";
@@ -59,12 +56,11 @@ const ReservaHabitacion = () => {
           return { ...h, publicURL };
         })
       );
-
       setHabitaciones(withUrls);
     })();
   }, []);
 
-  // Sincronizar fallback de preselección
+  // Sincronizar preselección...
   useEffect(() => {
     if (preseleccion && habitaciones.length) {
       const encontrada = habitaciones.find((h) => h.id === preseleccion.id);
@@ -72,7 +68,7 @@ const ReservaHabitacion = () => {
     }
   }, [preseleccion, habitaciones]);
 
-  // Calcular total
+  // Calcular total...
   useEffect(() => {
     if (fechaEntrada && fechaSalida && habitacionSeleccionada) {
       const noches = Math.ceil(
@@ -85,7 +81,26 @@ const ReservaHabitacion = () => {
   const handleReservar = async () => {
     setError(null);
 
-    // 1) Validaciones de UI
+    // --- Depuración del localStorage ---
+    const raw = localStorage.getItem("user");
+    console.log("Raw from localStorage:", raw);
+    let user;
+    try {
+      user = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.error("JSON parse error:", e);
+      user = null;
+    }
+    console.log("Parsed user object:", user);
+
+    // Validaciones de usuario
+    if (!user || typeof user.id !== "number") {
+      setError("Usuario no autenticado correctamente. Por favor inicia sesión de nuevo.");
+      // opcional: navigate("/login");
+      return;
+    }
+
+    // Validaciones de fechas y habitación
     if (!fechaEntrada || !fechaSalida) {
       setError("Selecciona fechas de entrada y salida.");
       return;
@@ -95,38 +110,20 @@ const ReservaHabitacion = () => {
       return;
     }
 
-    // 2) Usuario autenticado
-    const raw = localStorage.getItem("user");
-    if (!raw) {
-      setError("Debes iniciar sesión para reservar.");
-      return;
-    }
-    let user;
     try {
-      user = JSON.parse(raw);
-    } catch {
-      setError("Error de sesión. Vuelve a iniciar sesión.");
-      return;
-    }
-    if (!user?.id) {
-      setError("Sesión inválida. Inicia sesión nuevamente.");
-      return;
-    }
-
-    try {
-      // 3) Obtener cliente y RFC
+      // Obtener cliente y RFC
       const { data: cliente, error: errCli } = await supabase
         .from("clientes")
         .select("id, rfc")
         .eq("usuario_id", user.id)
         .single();
       if (errCli || !cliente?.id) {
-        console.error(errCli);
+        console.error("clienteError:", errCli);
         setError("No se encontró perfil de cliente.");
         return;
       }
 
-      // 4) Insertar reserva
+      // Insertar reserva
       const { data: reserva, error: errRes } = await supabase
         .from("reservas")
         .insert([{
@@ -137,12 +134,12 @@ const ReservaHabitacion = () => {
         }])
         .single();
       if (errRes || !reserva?.id) {
-        console.error(errRes);
+        console.error("reservaError:", errRes);
         setError("No se pudo crear la reserva.");
         return;
       }
 
-      // 5) Relacionar habitación
+      // Relacionar habitación
       const { error: errRh } = await supabase
         .from("reservas_habitaciones")
         .insert([{
@@ -150,19 +147,19 @@ const ReservaHabitacion = () => {
           habitacion_id: habitacionSeleccionada.id,
         }]);
       if (errRh) {
-        console.error(errRh);
+        console.error("rhError:", errRh);
         setError("No se pudo asignar la habitación a la reserva.");
         return;
       }
 
-      // 6) Actualizar estado de habitacion
+      // Marcar habitación ocupada
       const { error: errUpd } = await supabase
         .from("habitaciones")
         .update({ estado: "Ocupada" })
         .eq("id", habitacionSeleccionada.id);
       if (errUpd) console.warn("No se actualizó estado de habitación:", errUpd);
 
-      // 7) Crear factura pendiente
+      // Crear factura
       const { data: factura, error: errFac } = await supabase
         .from("facturas")
         .insert([{
@@ -174,12 +171,12 @@ const ReservaHabitacion = () => {
         }])
         .single();
       if (errFac || !factura?.id) {
-        console.error(errFac);
+        console.error("facturaError:", errFac);
         setError("No se pudo generar la factura.");
         return;
       }
 
-      // 8) Redirigir a pago
+      // Redirigir a pago
       navigate("/pago", { state: { factura, total } });
 
     } catch (err) {
@@ -192,7 +189,6 @@ const ReservaHabitacion = () => {
     <div className="reserva-container">
       <h2>Reserva tu Habitación</h2>
       {error && <p className="error">{error}</p>}
-
       <label>Fecha de Entrada:</label>
       <DatePicker
         selected={fechaEntrada}
@@ -200,7 +196,6 @@ const ReservaHabitacion = () => {
         minDate={new Date()}
         className="input"
       />
-
       <label>Fecha de Salida:</label>
       <DatePicker
         selected={fechaSalida}
@@ -208,7 +203,6 @@ const ReservaHabitacion = () => {
         minDate={fechaEntrada || new Date()}
         className="input"
       />
-
       <label>Habitación:</label>
       <select
         value={habitacionSeleccionada?.id || ""}
@@ -226,32 +220,6 @@ const ReservaHabitacion = () => {
           </option>
         ))}
       </select>
-
-      {habitacionSeleccionada && (
-        <div className="habitacion-detalle">
-          {habitacionSeleccionada.publicURL && (
-            <img
-              src={habitacionSeleccionada.publicURL}
-              alt={habitacionSeleccionada.tipos_habitaciones.tipo}
-              className="detalle-img"
-            />
-          )}
-          <h3>{habitacionSeleccionada.tipos_habitaciones.tipo}</h3>
-          <p>{habitacionSeleccionada.tipos_habitaciones.descripcion}</p>
-          <p className="precio">
-            Precio por noche: $
-            {habitacionSeleccionada.tipos_habitaciones.precio_noche}
-          </p>
-          <p>
-            Capacidad:{" "}
-            {habitacionSeleccionada.tipos_habitaciones.numero_persona}{" "}
-            {habitacionSeleccionada.tipos_habitaciones.numero_persona > 1
-              ? "personas"
-              : "persona"}
-          </p>
-        </div>
-      )}
-
       {habitacionSeleccionada && fechaEntrada && fechaSalida && (
         <>
           <p>Total a pagar: ${total}</p>
