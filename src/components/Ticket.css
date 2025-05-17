@@ -1,0 +1,19 @@
+.ticket-container {
+  max-width: 400px;
+  margin: 1rem auto;
+  padding: 1rem;
+  border: 1px dashed #333;
+  font-family: monospace;
+}
+.ticket-section {
+  margin-bottom: 1rem;
+}
+.btn-print {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+@media print {
+  .btn-print { display: none; }
+}

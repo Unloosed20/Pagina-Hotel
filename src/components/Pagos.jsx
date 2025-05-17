@@ -98,7 +98,7 @@ const Pagos = () => {
 
       // 3. Navegar a la página de confirmación con los datos del pago
       // Puedes pasar también 'factura' y 'reserva' si son útiles en la confirmación
-      navigate("/confirmacion", { state: { pago: pagoData, factura: factura, reserva: reserva } });
+      navigate("/ticket", { state: { pago: pagoData, factura: factura, reserva: reserva } });
 
     } catch (err) {
       console.error("Error general en el proceso de pago (handlePago):", err);

@@ -24,6 +24,7 @@ import GestionMembresias from "./components/GestionMembresias";
 import HabitacionesCliente from "./components/HabitacionesCliente";
 import Pagos from "./components/Pagos";
 import GestionReservas from "./components/GestionReservas";
+import Ticket from "./components/Ticket";
 
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -44,6 +45,7 @@ function App() {
           <Route path="/usuario-clientes" element={<UsuarioClientes />} />
           <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
           <Route path="/pagos" element={<Pagos />} />
+          <Route path="/ticket" element={<Ticket />} />
         </Route>
 
         {/* Administradores (role_id === 1) */}
