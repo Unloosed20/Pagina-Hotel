@@ -29,9 +29,7 @@ const GestionRestaurante = () => {
   }, []);
 
   const fetchItems = async () => {
-    const { data, error } = await supabase
-      .from("items_menu_bar")
-      .select("*");
+    const { data, error } = await supabase.from("items_menu_bar").select("*");
     if (!error) setItems(data);
   };
 
@@ -50,9 +48,7 @@ const GestionRestaurante = () => {
   };
 
   const fetchProductos = async () => {
-    const { data, error } = await supabase
-      .from("productos")
-      .select("id, nombre");
+    const { data, error } = await supabase.from("productos").select("id, nombre");
     if (!error) setProductos(data);
   };
 
@@ -182,10 +178,26 @@ const GestionRestaurante = () => {
     <div className="container">
       <h1 className="title">Gestión Restaurante-Bar</h1>
 
-      {/* Contenedor en flex para mostrar ambas tablas lado a lado */}
-      <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-        {/* Tabla de Items */}
-        <section className="items-section" style={{ flex: 1 }}>
+      {/* Wrapper con overflow-x para pantallas pequeñas */}
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          alignItems: "flex-start",
+          overflowX: "auto",
+          paddingBottom: "20px"
+        }}
+      >
+        {/* Sección Items */}
+        <section
+          className="items-section"
+          style={{
+            flex: "0 0 45%",
+            minWidth: "300px",
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
           <h2>Platillos y Bebidas</h2>
           <button className="add-btn" onClick={() => openModal()}>
             Nuevo Item
@@ -193,6 +205,7 @@ const GestionRestaurante = () => {
           <div
             className="scroll-container"
             style={{
+              flex: 1,
               maxHeight: "400px",
               overflowY: "auto",
               border: "1px solid #ccc",
@@ -258,12 +271,21 @@ const GestionRestaurante = () => {
           </div>
         </section>
 
-        {/* Tabla de Pedidos */}
-        <section className="pedidos-section" style={{ flex: 1 }}>
+        {/* Sección Pedidos */}
+        <section
+          className="pedidos-section"
+          style={{
+            flex: "0 0 45%",
+            minWidth: "300px",
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
           <h2>Pedidos</h2>
           <div
             className="scroll-container"
             style={{
+              flex: 1,
               maxHeight: "400px",
               overflowY: "auto",
               border: "1px solid #ccc",
@@ -289,12 +311,8 @@ const GestionRestaurante = () => {
                     <td>
                       {p.detalles
                         .map((d) => {
-                          const itemObj = items.find(
-                            (i) => i.id === d.item_id
-                          );
-                          const nombre = itemObj
-                            ? itemObj.nombre
-                            : `#${d.item_id}`;
+                          const itemObj = items.find((i) => i.id === d.item_id);
+                          const nombre = itemObj ? itemObj.nombre : `#${d.item_id}`;
                           return `${nombre} x${d.cantidad}`;
                         })
                         .join(", ")}
