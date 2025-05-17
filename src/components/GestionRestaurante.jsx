@@ -178,7 +178,6 @@ const GestionRestaurante = () => {
     <div className="container">
       <h1 className="title">Gestión Restaurante-Bar</h1>
 
-      {/* Wrapper con overflow-x para pantallas pequeñas */}
       <div
         style={{
           display: "flex",
@@ -188,20 +187,30 @@ const GestionRestaurante = () => {
           paddingBottom: "20px"
         }}
       >
-        {/* Sección Items */}
+        {/* Platillos y Bebidas */}
         <section
           className="items-section"
           style={{
-            flex: "0 0 45%",
-            minWidth: "300px",
+            flex: "0 0 48%",
+            minWidth: "350px",
             display: "flex",
             flexDirection: "column"
           }}
         >
-          <h2>Platillos y Bebidas</h2>
-          <button className="add-btn" onClick={() => openModal()}>
-            Nuevo Item
-          </button>
+          <div
+            className="section-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "8px"
+            }}
+          >
+            <h2>Platillos y Bebidas</h2>
+            <button className="add-btn" onClick={() => openModal()}>
+              Nuevo Item
+            </button>
+          </div>
           <div
             className="scroll-container"
             style={{
@@ -271,17 +280,29 @@ const GestionRestaurante = () => {
           </div>
         </section>
 
-        {/* Sección Pedidos */}
+        {/* Pedidos */}
         <section
           className="pedidos-section"
           style={{
-            flex: "0 0 45%",
-            minWidth: "300px",
+            flex: "0 0 48%",
+            minWidth: "350px",
             display: "flex",
             flexDirection: "column"
           }}
         >
-          <h2>Pedidos</h2>
+          <div
+            className="section-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "8px"
+            }}
+          >
+            <h2>Pedidos</h2>
+            {/* placeholder para alinear el scroll al mismo nivel */}
+            <div style={{ width: "120px" }} />
+          </div>
           <div
             className="scroll-container"
             style={{
@@ -312,7 +333,9 @@ const GestionRestaurante = () => {
                       {p.detalles
                         .map((d) => {
                           const itemObj = items.find((i) => i.id === d.item_id);
-                          const nombre = itemObj ? itemObj.nombre : `#${d.item_id}`;
+                          const nombre = itemObj
+                            ? itemObj.nombre
+                            : `#${d.item_id}`;
                           return `${nombre} x${d.cantidad}`;
                         })
                         .join(", ")}
