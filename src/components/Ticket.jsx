@@ -1,20 +1,62 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import "./Ticket.css";
 
 const Ticket = () => {
-  const { factura, reserva, pago } = useLocation().state || {};
   const navigate = useNavigate();
+  const { factura, reserva: reservaBase, pago } = useLocation().state || {};
+  const [reserva, setReserva] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Redirigir si faltan datos, usando useEffect para efectos secundarios
+  // 1) Redirigir si faltan datos mínimos
   useEffect(() => {
-    if (!factura || !reserva || !pago) {
+    if (!factura || !reservaBase?.id || !pago) {
+      console.warn("Ticket.jsx: datos esenciales faltantes", { factura, reservaBase, pago });
       const timer = setTimeout(() => navigate("/"), 3000);
       return () => clearTimeout(timer);
     }
-  }, [factura, reserva, pago, navigate]);
+  }, [factura, reservaBase, pago, navigate]);
 
-  // Mostrar mensaje de datos incompletos
+  // 2) Cargar datos completos de la reserva (cliente y habitaciones)
+  useEffect(() => {
+    const fetchReserva = async () => {
+      if (!reservaBase?.id) return;
+      try {
+        const { data, error } = await supabase
+          .from("reservas")
+          .select(`
+            id,
+            fecha_inicio,
+            fecha_fin,
+            cliente:clientes (nombre, apellido_paterno),
+            habitaciones:reservas_habitaciones!inner (
+              habitacion:habitaciones!inner (id)
+            )
+          `)
+          .eq("id", reservaBase.id)
+          .single();
+        if (error) throw error;
+        setReserva(data);
+      } catch (err) {
+        console.error("Error cargando reserva completa:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReserva();
+  }, [reservaBase]);
+
+  // Mientras carga la reserva
+  if (loading) {
+    return (
+      <div className="ticket-container">
+        <p>Cargando ticket...</p>
+      </div>
+    );
+  }
+
+  // Si al final no hay datos válidos
   if (!factura || !reserva || !pago) {
     return (
       <div className="ticket-container">
@@ -24,10 +66,7 @@ const Ticket = () => {
   }
 
   // Desestructurar datos para el ticket
-  const {
-    id: factId,
-    created_at: fechaFactura,
-  } = factura;
+  const { id: factId, created_at: fechaFactura } = factura;
   const {
     id: reservaId,
     cliente: { nombre, apellido_paterno },
@@ -50,7 +89,7 @@ const Ticket = () => {
       <div className="ticket-section">
         <strong>Cliente:</strong> {nombre} {apellido_paterno}<br />
         <strong>Reserva #{reservaId}</strong><br />
-        Habitación: {habitaciones[0]?.habitacion_id || 'N/A'}<br />
+        Habitación: {habitaciones[0]?.habitacion.id || 'N/A'}<br />
         Fecha de ingreso: {new Date(fecha_inicio).toLocaleDateString()}<br />
         Fecha de salida: {new Date(fecha_fin).toLocaleDateString()}
       </div>
