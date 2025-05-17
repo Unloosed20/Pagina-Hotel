@@ -215,24 +215,26 @@ body {
   flex: 1 1 150px; 
   margin-bottom: 0; 
 }
-
 .remove-ingrediente-btn {
+  display: flex;
+  justify-content: center;  /* centra horizontalmente */
+  align-items: center;      /* centra verticalmente */
   background-color: #ef5350 !important; 
   color: white;
   border: none;
   border-radius: 50%;
   width: 28px;
   height: 28px;
-  line-height: 28px;
-  text-align: center;
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
-  flex-shrink: 0; 
+  flex-shrink: 0;
+  box-sizing: border-box;   /* para evitar recortes inesperados */
 }
 .remove-ingrediente-btn:hover {
   background-color: #d32f2f !important;
 }
+
 
 .add-ingrediente-btn {
   background-color: #66bb6a !important;
