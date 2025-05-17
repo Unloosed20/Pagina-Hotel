@@ -23,6 +23,7 @@ import GestionServicios from "./components/GestionServicios";
 import GestionMembresias from "./components/GestionMembresias";
 import HabitacionesCliente from "./components/HabitacionesCliente";
 import Pagos from "./components/Pagos";
+import GestionReservas from "./components/GestionReservas";
 
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -61,6 +62,7 @@ function App() {
           <Route path="/gestion-ventas" element={<GestionVentas />} />
           <Route path="/gestion-servicios" element={<GestionServicios />} />
           <Route path="/gestion-membresias" element={<GestionMembresias />} />
+          <Route path="/gestion-reservas" element={<GestionReservas />} />
         </Route>
       </Routes>
     </Router>
