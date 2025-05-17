@@ -1,4 +1,3 @@
-/* components/ReservaHabitacion.jsx */
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -17,7 +16,7 @@ const ReservaHabitacion = () => {
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(
     preseleccion || null
   );
-  const [reservedDates, setReservedDates] = useState([]); // <-- Fechas ya reservadas
+  const [reservedDates, setReservedDates] = useState([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,19 +26,21 @@ const ReservaHabitacion = () => {
   }, []);
 
   useEffect(() => {
-    // Si hay preselección y ya cargaron habitaciones
     if (preseleccion && habitaciones.length) {
       const coincide = habitaciones.find((h) => h.id === preseleccion.id);
       if (coincide) setHabitacionSeleccionada(coincide);
     }
   }, [preseleccion, habitaciones]);
 
-  // --- Fetch de habitaciones disponibles ---
+  useEffect(() => {
+    if (habitacionSeleccionada) fetchReservedDates();
+    else setReservedDates([]);
+  }, [habitacionSeleccionada]);
+
   const fetchHabitaciones = async () => {
     const { data, error: fetchError } = await supabase
       .from("habitaciones")
-      .select(
-        `
+      .select(`
         id,
         numero_habitacion,
         estado,
@@ -50,8 +51,7 @@ const ReservaHabitacion = () => {
           numero_persona,
           precio_noche
         )
-      `
-      )
+      `)
       .eq("estado", "Disponible");
 
     if (fetchError) {
@@ -83,21 +83,12 @@ const ReservaHabitacion = () => {
     setHabitaciones(habitacionesConUrl);
   };
 
-  // --- Fetch de fechas reservadas cuando cambia la habitación ---
-  useEffect(() => {
-    if (habitacionSeleccionada) {
-      fetchReservedDates();
-    } else {
-      setReservedDates([]);
-    }
-  }, [habitacionSeleccionada]);
-
   const fetchReservedDates = async () => {
     const { data, error: fetchError } = await supabase
       .from("reservas_habitaciones")
       .select("reservas(fecha_inicio,fecha_fin)")
       .eq("habitacion_id", habitacionSeleccionada.id)
-      .eq("reservas.estado", "Confirmada"); // Solo reservas confirmadas
+      .eq("reservas.estado", "Confirmada");
 
     if (fetchError) {
       console.error("Error al cargar reservas:", fetchError);
@@ -115,7 +106,6 @@ const ReservaHabitacion = () => {
     setReservedDates(dates);
   };
 
-  // --- Cálculo de total ---
   useEffect(() => {
     if (
       fechaEntrada &&
@@ -151,11 +141,126 @@ const ReservaHabitacion = () => {
     }
   }, [fechaEntrada, fechaSalida, habitacionSeleccionada]);
 
-  // --- Manejo de la reserva ---
   const handleReservar = async () => {
-    /* (Mismo código que ya tenías para validar usuario, insertar reserva,
-       asociar habitación, crear factura y redirigir) */
-    // ...
+    setError(null);
+    setLoading(true);
+
+    if (!fechaEntrada || !fechaSalida) {
+      setError("Por favor, selecciona las fechas de entrada y salida.");
+      setLoading(false);
+      return;
+    }
+    if (fechaSalida <= fechaEntrada) {
+      setError("La fecha de salida debe ser posterior a la fecha de entrada.");
+      setLoading(false);
+      return;
+    }
+    if (!habitacionSeleccionada) {
+      setError("Por favor, selecciona una habitación.");
+      setLoading(false);
+      return;
+    }
+
+    const userRaw = localStorage.getItem("user");
+    if (!userRaw) {
+      setError("Debes iniciar sesión para reservar. Serás redirigido.");
+      setLoading(false);
+      setTimeout(() => navigate("/login"), 3000);
+      return;
+    }
+
+    let user;
+    try {
+      user = JSON.parse(userRaw);
+    } catch (e) {
+      setError("Error de sesión. Por favor, vuelve a iniciar sesión.");
+      setLoading(false);
+      localStorage.removeItem("user");
+      setTimeout(() => navigate("/login"), 3000);
+      return;
+    }
+
+    if (!user?.id) {
+      setError("Sesión inválida. Por favor, inicia sesión nuevamente.");
+      setLoading(false);
+      localStorage.removeItem("user");
+      setTimeout(() => navigate("/login"), 3000);
+      return;
+    }
+
+    try {
+      const { data: clienteData, error: clienteError } = await supabase
+        .from("clientes")
+        .select("id, rfc")
+        .eq("usuario_id", user.id)
+        .single();
+
+      if (clienteError || !clienteData) {
+        setError(
+          "No se encontró un perfil de cliente asociado a tu usuario. Por favor, completa tu perfil o contacta a soporte."
+        );
+        setLoading(false);
+        return;
+      }
+      const clienteId = clienteData.id;
+      const clienteRfc = clienteData.rfc;
+
+      if (!clienteRfc) {
+        setError("El RFC del cliente no está disponible. Por favor, actualiza tu perfil.");
+        setLoading(false);
+        return;
+      }
+
+      const { data: reservaData, error: reservaError } = await supabase
+        .from("reservas")
+        .insert([
+          {
+            cliente_id: clienteId,
+            fecha_inicio: fechaEntrada.toISOString().split("T")[0],
+            fecha_fin: fechaSalida.toISOString().split("T")[0],
+            estado: "Confirmada",
+          },
+        ])
+        .select()
+        .single();
+
+      if (reservaError) throw new Error(reservaError.message);
+
+      const reservaId = reservaData.id;
+
+      const { error: rhError } = await supabase
+        .from("reservas_habitaciones")
+        .insert([
+          { reserva_id: reservaId, habitacion_id: habitacionSeleccionada.id },
+        ]);
+      if (rhError) throw new Error(rhError.message);
+
+      const { data: facturaData, error: facturaError } = await supabase
+        .from("facturas")
+        .insert([
+          {
+            cliente_id: clienteId,
+            reserva_id: reservaId,
+            total,
+            estado: "Pendiente",
+            rfc_cliente: clienteRfc,
+          },
+        ])
+        .select()
+        .single();
+      if (facturaError) throw new Error(facturaError.message);
+
+      navigate("/pagos", {
+        state: { factura: facturaData, total, reserva: reservaData },
+      });
+    } catch (err) {
+      console.error("Error en reserva:", err);
+      setError(
+        err.message || "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -170,7 +275,7 @@ const ReservaHabitacion = () => {
           selected={fechaEntrada}
           onChange={(date) => {
             setFechaEntrada(date);
-            setFechaSalida(null); // reset salida al cambiar entrada
+            setFechaSalida(null);
           }}
           minDate={new Date()}
           excludeDates={reservedDates}
