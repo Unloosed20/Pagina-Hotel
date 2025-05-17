@@ -1,15 +1,64 @@
+/* ======== PARCHE PARA HTML Y BODY (INICIO) ======== */
+/* Estas reglas idealmente van en un archivo CSS global (index.css, App.css) */
+/* Intenta asegurar que el scroll vertical de la página funcione. */
+
+html {
+  height: 100%; /* A veces necesario para que body min-height: 100% funcione como se espera */
+  overflow-y: auto !important; /* Clave: Forzar scroll vertical si el contenido excede la altura */
+  box-sizing: border-box;
+}
+
 body {
+  min-height: 100%; /* Asegura que el body ocupe al menos toda la altura del viewport */
+  /* O alternativamente: min-height: 100vh; */
+  overflow-y: auto !important; /* Clave: Forzar scroll vertical también en body */
+  overflow-x: hidden; /* Clave: Intenta prevenir el scroll horizontal general de la página si es indeseado. */
+                      /* Si tienes contenido que legítimamente necesita ser más ancho que la pantalla y scrollear, */
+                      /* comenta o ajusta esta línea. Los scrolls internos de las tablas seguirán funcionando. */
+  
+  /* Estilos originales del body que ya estaban: */
   font-family: 'Georgia', serif;
   background-color: #FFF8E7;
   margin: 0;
-  padding: 0; /* Asegurar que no haya padding por defecto */
+  padding: 0; 
+  box-sizing: border-box; /* Aplicar box-sizing a body también */
 }
+
+/* Aplicar box-sizing universalmente es una buena práctica */
+*, *::before, *::after {
+  box-sizing: inherit; /* Hereda el box-sizing de su padre (que ahora es border-box desde html/body) */
+}
+/* ======== PARCHE PARA HTML Y BODY (FIN) ======== */
+
 
 .container {
   max-width: 1200px;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
   padding: 20px;
   text-align: center;
+  width: 100%; 
+}
+
+.items-section,
+.pedidos-section {
+  width: 100%; 
+  box-sizing: border-box; 
+}
+
+.scroll-container {
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+  width: 100%; 
+  box-sizing: border-box;
+}
+
+.client-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  table-layout: auto; 
 }
 
 .title {
@@ -25,7 +74,7 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 15px; /* Mantenido si es útil para la sección header */
+  margin-bottom: 15px; 
   font-size: 0.9rem;
 }
 
@@ -33,38 +82,22 @@ body {
   background-color: #B38B2D;
 }
 
-/* scroll-container ya tiene estilos inline para overflowY y maxHeight */
-/* Esta clase es para el scroll horizontal interno de la tabla si es necesario */
-.scroll-container {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* Para un scroll más suave en iOS */
-  width: 100%; /* Asegura que el contenedor ocupe el espacio asignado */
-  box-sizing: border-box;
-}
-
-.client-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px; /* Ajustado ligeramente */
-  font-size: 0.9rem; /* Para que quepa mejor en móviles */
-}
-
 .client-table th,
 .client-table td {
   border: 1px solid #ddd;
-  padding: 8px; /* Ajustado ligeramente */
-  text-align: left; /* Mejor para tablas de datos */
+  padding: 8px; 
+  text-align: left; 
 }
 
 .client-table th {
   background-color: #D4AF37;
   color: #FFF8E7;
-  position: sticky; /* Hace que los encabezados se queden fijos al hacer scroll vertical en la tabla */
-  top: 0;           /* Necesario para position: sticky */
-  z-index: 1;       /* Para que esté por encima del contenido de la tabla */
+  position: sticky; 
+  top: 0;           
+  z-index: 1;       
 }
 
-.client-table td:last-child { /* Para la columna de acciones */
+.client-table td:last-child { 
   text-align: center;
 }
 
@@ -73,14 +106,14 @@ body {
   height: 50px;
   object-fit: cover;
   border-radius: 4px;
-  display: block; /* Para evitar espacio extra debajo de la imagen */
-  margin: auto; /* Si la celda es más grande, centra la imagen */
+  display: block; 
+  margin: auto; 
 }
 
 .edit-btn,
 .delete-btn {
   padding: 6px 10px;
-  margin: 2px;
+  margin: 2px; /* Este margen pequeño entre editar/eliminar en la tabla es clave */
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -112,24 +145,24 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6); /* Un poco más oscuro para mejor contraste */
+  background: rgba(0, 0, 0, 0.6); 
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Asegurar que el modal esté por encima de todo */
-  padding: 15px; /* Padding para que el modal no toque los bordes en pantallas muy pequeñas */
+  z-index: 1000; 
+  padding: 15px; 
   box-sizing: border-box;
 }
 
 .modal-content {
   background: #F5F5DC;
-  padding: 20px 25px; /* Ajustado */
-  border-radius: 10px; /* Suavizado */
-  width: 90%; /* Responsivo para móviles */
-  max-width: 500px; /* Límite para pantallas más grandes */
-  max-height: 90vh; /* Máxima altura relativa al viewport */
-  overflow-y: auto; /* Scroll si el contenido del modal es muy largo */
-  text-align: left; /* Mejor para formularios */
+  padding: 20px 25px; 
+  border-radius: 10px; 
+  width: 90%; 
+  max-width: 500px; 
+  max-height: 90vh; 
+  overflow-y: auto; 
+  text-align: left; 
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   box-sizing: border-box;
 }
@@ -137,32 +170,32 @@ body {
 .modal-content h2 {
   color: #D4AF37;
   font-family: 'Playfair Display', serif;
-  margin-top: 0; /* Quitar margen superior por defecto del h2 */
-  margin-bottom: 20px;
-  text-align: center; /* Centrar el título del modal */
+  margin-top: 0; 
+  margin-bottom: 25px; /* Ajustado - Más espacio debajo del título */
+  text-align: center; 
 }
 
 .modal-content form input,
 .modal-content form select,
 .modal-content form textarea {
-  width: 100%; /* Ocupan todo el ancho disponible en el form */
+  width: 100%; 
   padding: 10px;
-  margin-bottom: 12px; /* Espacio entre campos */
+  margin-bottom: 15px; /* Ajustado - Más espacio entre campos de formulario */
   border: 1px solid #D4AF37;
   border-radius: 6px;
   background: #FFF8E7;
-  box-sizing: border-box; /* Importante para que padding no afecte el width total */
+  box-sizing: border-box; 
   font-size: 0.95rem;
 }
 
 .modal-content form textarea {
-    min-height: 80px; /* Altura mínima para textareas */
-    resize: vertical; /* Permitir redimensionar verticalmente */
+    min-height: 80px; 
+    resize: vertical; 
 }
 
 .modal-content form label {
   display: block;
-  margin-bottom: 5px; /* Espacio antes del input */
+  margin-bottom: 6px; /* Ajustado - Ligero aumento de espacio antes del input */
   color: #5A4A42;
   font-weight: bold;
   font-size: 0.9rem;
@@ -170,21 +203,20 @@ body {
 
 .ingrediente-row {
   display: flex;
-  flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea en móviles */
-  gap: 10px; /* Espacio entre elementos */
+  flex-wrap: wrap; 
+  gap: 12px; /* Ajustado - Más espacio entre elementos de la fila de ingredientes */
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px; /* Ajustado - Más espacio debajo de cada fila de ingredientes */
 }
 
 .ingrediente-row select,
 .ingrediente-row input {
-  flex: 1 1 150px; /* Crecer y encogerse, con una base de 150px */
-  /* width: auto; Ya no es necesario por flex */
-  margin-bottom: 0; /* Quitar margen inferior si está en flex row */
+  flex: 1 1 150px; 
+  margin-bottom: 0; 
 }
 
 .remove-ingrediente-btn {
-  background-color: #ef5350 !important; /* Usar !important con cuidado si es necesario */
+  background-color: #ef5350 !important; 
   color: white;
   border: none;
   border-radius: 50%;
@@ -195,7 +227,7 @@ body {
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
-  flex-shrink: 0; /* Evitar que el botón se encoja */
+  flex-shrink: 0; 
 }
 .remove-ingrediente-btn:hover {
   background-color: #d32f2f !important;
@@ -204,10 +236,12 @@ body {
 .add-ingrediente-btn {
   background-color: #66bb6a !important;
   color: white;
-  padding: 8px 12px !important;
-  display: inline-block; /* Para que no ocupe todo el ancho */
-  margin-top: 5px !important; /* Ajuste de margen */
-  margin-bottom: 15px !important;
+  padding: 10px 15px !important; /* Ajustado - Padding un poco más generoso */
+  display: inline-block; 
+  margin-top: 10px !important; /* Ajustado - Más espacio arriba */
+  margin-bottom: 20px !important; /* Ajustado - Más espacio abajo */
+  border-radius: 6px; /* Nuevo - Consistencia con otros botones */
+  font-size: 0.9rem; /* Nuevo - Consistencia */
 }
 .add-ingrediente-btn:hover {
   background-color: #43a047 !important;
@@ -216,12 +250,13 @@ body {
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end; /* Alinea botones a la derecha */
-  gap: 10px; /* Espacio entre botones */
-  margin-top: 20px;
+  justify-content: flex-end; 
+  gap: 12px; /* Ajustado - Más espacio entre botones Guardar/Cancelar */
+  margin-top: 25px; /* Ajustado - Más espacio arriba de los botones de acción */
 }
 
-.modal-content form button { /* Estilo general para botones dentro del form del modal */
+/* Estilo base para botones dentro del formulario del modal, si no tienen clase específica */
+.modal-content form button { 
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -229,7 +264,7 @@ body {
   font-size: 0.95rem;
 }
 
-.modal-content form button.save-btn {
+.modal-content form button.save-btn { /* Hereda padding de arriba */
   background: #D4AF37;
   color: #FFF8E7;
 }
@@ -237,7 +272,7 @@ body {
   background: #B38B2D;
 }
 
-.modal-content form button.cancel-btn {
+.modal-content form button.cancel-btn { /* Hereda padding de arriba */
   background: #6c757d;
   color: white;
 }
@@ -269,7 +304,7 @@ body {
     font-size: 1.5rem;
   }
   .client-table {
-    font-size: 0.8rem; /* Reducir más si es necesario */
+    font-size: 0.8rem; 
   }
   .client-table th,
   .client-table td {
@@ -279,30 +314,55 @@ body {
     font-size: 0.8rem;
     padding: 8px 12px;
   }
+
+  .modal-content {
+    padding: 15px; /* Un poco menos padding en pantallas muy pequeñas */
+  }
+
+  .modal-content form input,
+  .modal-content form select,
+  .modal-content form textarea {
+    margin-bottom: 12px; /* Reducir un poco el espacio entre campos en móvil */
+  }
+  
   .modal-actions {
-    flex-direction: column; /* Apila botones en modal en pantallas muy pequeñas */
+    flex-direction: column; 
+    gap: 0; /* El gap no aplica en flex-direction column, usamos margin en los botones */
   }
   .modal-actions button {
-    width: 100%; /* Botones ocupan todo el ancho */
-    margin-bottom: 8px; /* Espacio entre botones apilados */
+    width: 100%; 
+    margin-bottom: 10px; /* Ajustado - Espacio entre botones Guardar/Cancelar apilados */
   }
   .modal-actions button:last-child {
     margin-bottom: 0;
   }
+
   .ingrediente-row {
-    flex-direction: column; /* Apila los elementos de ingrediente en móviles */
-    align-items: stretch; /* Estira los elementos para que ocupen el ancho */
+    flex-direction: column; 
+    align-items: stretch; 
+    gap: 0; /* El gap no aplica en flex-direction column, usamos margin en los elementos */
+    margin-bottom: 15px; /* Un poco más de espacio entre filas de ingredientes en móvil */
   }
   .ingrediente-row select,
   .ingrediente-row input,
-  .ingrediente-row button {
-    width: 100%; /* Ocupan todo el ancho */
-    margin-bottom: 8px; /* Espacio entre ellos */
+  .ingrediente-row button { 
+    width: 100%; 
+    margin-bottom: 10px; /* Ajustado - Espacio entre los elementos apilados de una fila de ingrediente */
   }
-  .ingrediente-row button.remove-ingrediente-btn {
-    align-self: flex-end; /* Mueve el botón de eliminar a la derecha */
-    width: auto; /* Ancho automático para el botón cuando está en columna */
-    padding: 5px 10px;
+  .ingrediente-row *:last-child { /* Quitar el margen inferior del último elemento en la columna de ingrediente-row */
+    margin-bottom: 0;
   }
 
+  .ingrediente-row button.remove-ingrediente-btn {
+    align-self: flex-end; 
+    width: auto; 
+    padding: 5px 10px;
+    margin-top: 5px; /* Nuevo - Pequeño margen superior para separarlo del input/select cuando está en columna */
+  }
+
+  .add-ingrediente-btn {
+    padding: 10px 12px !important; /* Ajuste para móvil */
+    margin-top: 8px !important;
+    margin-bottom: 15px !important;
+  }
 }
