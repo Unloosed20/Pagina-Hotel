@@ -182,119 +182,141 @@ const GestionRestaurante = () => {
     <div className="container">
       <h1 className="title">Gestión Restaurante-Bar</h1>
 
-      <section className="items-section">
-        <h2>Platillos y Bebidas</h2>
-        <button className="add-btn" onClick={() => openModal()}>
-          Nuevo Item
-        </button>
-        <div
-          className="scroll-container"
-          style={{ maxHeight: "400px", overflowY: "auto" }}
-        >
-          <table className="client-table">
-            <thead>
-              <tr>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Precio</th>
-                <th>Disp.</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    {item.imagen_url && (
-                      <img
-                        src={
-                          item.imagen_url.startsWith("http")
-                            ? item.imagen_url
-                            : supabase.storage
-                                .from("items_menu_bar")
-                                .getPublicUrl(item.imagen_url).data.publicUrl
-                        }
-                        alt={item.nombre}
-                        className="thumb"
-                      />
-                    )}
-                  </td>
-                  <td>{item.nombre}</td>
-                  <td>{item.tipo}</td>
-                  <td>
-                    {item.tipo === "Bebida" && item.precio_copa
-                      ? `Copa ${item.precio_copa}`
-                      : item.precio}
-                  </td>
-                  <td>{item.disponible ? "Sí" : "No"}</td>
-                  <td>
-                    <button
-                      className="edit-btn"
-                      onClick={() => openModal(item)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
+      {/* Contenedor en flex para mostrar ambas tablas lado a lado */}
+      <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
+        {/* Tabla de Items */}
+        <section className="items-section" style={{ flex: 1 }}>
+          <h2>Platillos y Bebidas</h2>
+          <button className="add-btn" onClick={() => openModal()}>
+            Nuevo Item
+          </button>
+          <div
+            className="scroll-container"
+            style={{
+              maxHeight: "400px",
+              overflowY: "auto",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "8px"
+            }}
+          >
+            <table className="client-table">
+              <thead>
+                <tr>
+                  <th>Imagen</th>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Precio</th>
+                  <th>Disp.</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      {item.imagen_url && (
+                        <img
+                          src={
+                            item.imagen_url.startsWith("http")
+                              ? item.imagen_url
+                              : supabase.storage
+                                  .from("items_menu_bar")
+                                  .getPublicUrl(item.imagen_url).data.publicUrl
+                          }
+                          alt={item.nombre}
+                          className="thumb"
+                        />
+                      )}
+                    </td>
+                    <td>{item.nombre}</td>
+                    <td>{item.tipo}</td>
+                    <td>
+                      {item.tipo === "Bebida" && item.precio_copa
+                        ? `Copa ${item.precio_copa}`
+                        : item.precio}
+                    </td>
+                    <td>{item.disponible ? "Sí" : "No"}</td>
+                    <td>
+                      <button
+                        className="edit-btn"
+                        onClick={() => openModal(item)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-      <section className="pedidos-section">
-        <h2>Pedidos</h2>
-        <div
-          className="scroll-container"
-          style={{ maxHeight: "400px", overflowY: "auto" }}
-        >
-          <table className="client-table">
-            <thead>
-              <tr>
-                <th>ID Pedido</th>
-                <th>Detalle</th>
-                <th>Fecha</th>
-                <th>Origen</th>
-                <th>Mesa</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidos.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.id}</td>
-                  <td>
-                    {p.detalles
-                      .map((d) => {
-                        const itemObj = items.find((i) => i.id === d.item_id);
-                        const nombre = itemObj ? itemObj.nombre : `#${d.item_id}`;
-                        return `${nombre} x${d.cantidad}`;
-                      })
-                      .join(", ")}
-                  </td>
-                  <td>
-                    {new Date(p.fecha).toLocaleString("es-MX", {
-                      dateStyle: "short",
-                      timeStyle: "short"
-                    })}
-                  </td>
-                  <td>{p.origen}</td>
-                  <td>{p.mesa_numero ?? "-"}</td>
-                  <td>{p.estado}</td>
+        {/* Tabla de Pedidos */}
+        <section className="pedidos-section" style={{ flex: 1 }}>
+          <h2>Pedidos</h2>
+          <div
+            className="scroll-container"
+            style={{
+              maxHeight: "400px",
+              overflowY: "auto",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "8px"
+            }}
+          >
+            <table className="client-table">
+              <thead>
+                <tr>
+                  <th>ID Pedido</th>
+                  <th>Detalle</th>
+                  <th>Fecha</th>
+                  <th>Origen</th>
+                  <th>Mesa</th>
+                  <th>Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody>
+                {pedidos.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.id}</td>
+                    <td>
+                      {p.detalles
+                        .map((d) => {
+                          const itemObj = items.find(
+                            (i) => i.id === d.item_id
+                          );
+                          const nombre = itemObj
+                            ? itemObj.nombre
+                            : `#${d.item_id}`;
+                          return `${nombre} x${d.cantidad}`;
+                        })
+                        .join(", ")}
+                    </td>
+                    <td>
+                      {new Date(p.fecha).toLocaleString("es-MX", {
+                        dateStyle: "short",
+                        timeStyle: "short"
+                      })}
+                    </td>
+                    <td>{p.origen}</td>
+                    <td>{p.mesa_numero ?? "-"}</td>
+                    <td>{p.estado}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
 
+      {/* Modal de Item */}
       {modalOpen && (
         <div className="modal">
           <div className="modal-content">
