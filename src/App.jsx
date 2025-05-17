@@ -52,7 +52,7 @@ function App() {
           <Route path="/restaurante-cliente" element={<RestauranteCliente />} />
           <Route path="/orden-cliente" element={<OrdenCliente />} />
           <Route path="/pagos-pedidos" element={<PagosPedido />} />
-          <Route path="/ticket-pedidos" element={<PagosPedido />} />
+          <Route path="/ticket-pedidos" element={<TicketPedido />} />
         </Route>
 
         {/* Administradores (role_id === 1) */}
