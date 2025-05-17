@@ -10,6 +10,7 @@ const Navbar = () => {
           <Link to="/" className="cta-button">Iniciar sesion</Link>
           <Link to="/registro-clientes" className="cta-button">Registrarse</Link>
           <Link to="/habitaciones-cliente" className="cta-button">Habitaciones</Link>
+          <Link to="/restaurante-cliente" className="cta-button">Restaurante</Link>
         </div>
       </div>
     </header>

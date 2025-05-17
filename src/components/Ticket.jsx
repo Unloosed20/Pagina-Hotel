@@ -12,7 +12,6 @@ const Ticket = () => {
   // 1) Redirigir si faltan datos mínimos
   useEffect(() => {
     if (!factura || !reservaBase?.id || !pago) {
-      console.warn("Ticket.jsx: datos esenciales faltantes", { factura, reservaBase, pago });
       const timer = setTimeout(() => navigate("/"), 3000);
       return () => clearTimeout(timer);
     }
@@ -66,7 +65,8 @@ const Ticket = () => {
   }
 
   // Desestructurar datos para el ticket
-  const { id: factId, created_at: fechaFactura } = factura;
+  const { id: factId } = factura;
+  const fechaGeneracion = new Date();
   const {
     id: reservaId,
     cliente: { nombre, apellido_paterno },
@@ -78,12 +78,12 @@ const Ticket = () => {
 
   return (
     <div className="ticket-container">
-      <h2>Hotel “TuEstancia”</h2>
+      <h2>Hotel “Punta Arena”</h2>
       <h3>Ticket de Pago</h3>
 
       <div className="ticket-section">
         <strong>Factura #{factId}</strong><br />
-        Fecha: {new Date(fechaFactura).toLocaleString()}
+        <strong>Emitido:</strong> {fechaGeneracion.toLocaleString()}
       </div>
 
       <div className="ticket-section">

@@ -1,0 +1,90 @@
+/* RestauranteCliente.css */
+
+.rc-container {
+  font-family: 'Georgia', serif;
+  background-color: #FFF8E7;
+  padding: 20px;
+}
+
+.rc-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #5A4A42;
+  margin-bottom: 20px;
+}
+
+.rc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.rc-card {
+  background-color: #F5F5DC;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rc-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.rc-info {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.rc-name {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #D4AF37;
+  font-family: 'Playfair Display', serif;
+}
+
+.rc-desc {
+  flex: 1;
+  margin: 10px 0;
+  color: #5A4A42;
+  font-size: 0.95rem;
+}
+
+.rc-price {
+  font-weight: bold;
+  color: #5A4A42;
+  margin-bottom: 15px;
+}
+
+.rc-btn {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.rc-btn:hover {
+  background-color: #B38B2D;
+}
+
+@media (max-width: 600px) {
+  .rc-grid {
+    grid-template-columns: 1fr;
+  }
+  .rc-img {
+    height: 200px;
+  }
+
+  .rc-container {
+    padding-bottom: 60px;
+  }
+}

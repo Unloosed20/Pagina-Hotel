@@ -25,8 +25,11 @@ import HabitacionesCliente from "./components/HabitacionesCliente";
 import Pagos from "./components/Pagos";
 import GestionReservas from "./components/GestionReservas";
 import Ticket from "./components/Ticket";
-
+import RestauranteCliente from "./components/RestauranteCliente";
+import OrdenCliente from "./components/OrdenCliente";
+import PagosPedido from "./components/PagosPedido";
 import PrivateRoute from "./components/PrivateRoute";
+import TicketPedido from "./components/TicketPedido";
 
 function App() {
   return (
@@ -46,6 +49,10 @@ function App() {
           <Route path="/filtro-habitaciones" element={<FiltroDeHabitaciones />} />
           <Route path="/pagos" element={<Pagos />} />
           <Route path="/ticket" element={<Ticket />} />
+          <Route path="/restaurante-cliente" element={<RestauranteCliente />} />
+          <Route path="/orden-cliente" element={<OrdenCliente />} />
+          <Route path="/pagos-pedidos" element={<PagosPedido />} />
+          <Route path="/ticket-pedidos" element={<PagosPedido />} />
         </Route>
 
         {/* Administradores (role_id === 1) */}
