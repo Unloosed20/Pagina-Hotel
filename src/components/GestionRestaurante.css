@@ -2,18 +2,22 @@ body {
   font-family: 'Georgia', serif;
   background-color: #FFF8E7;
   margin: 0;
+  padding: 0; /* Asegurar que no haya padding por defecto */
 }
+
 .container {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
   text-align: center;
 }
+
 .title {
   font-size: 2rem;
   color: #5A4A42;
   margin-bottom: 20px;
 }
+
 .add-btn {
   background-color: #D4AF37;
   color: #FFF8E7;
@@ -21,36 +25,58 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 15px; /* Mantenido si es útil para la sección header */
+  font-size: 0.9rem;
 }
+
 .add-btn:hover {
   background-color: #B38B2D;
 }
+
+/* scroll-container ya tiene estilos inline para overflowY y maxHeight */
+/* Esta clase es para el scroll horizontal interno de la tabla si es necesario */
 .scroll-container {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;
+  -webkit-overflow-scrolling: touch; /* Para un scroll más suave en iOS */
+  width: 100%; /* Asegura que el contenedor ocupe el espacio asignado */
+  box-sizing: border-box;
 }
+
 .client-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 10px; /* Ajustado ligeramente */
+  font-size: 0.9rem; /* Para que quepa mejor en móviles */
 }
+
 .client-table th,
 .client-table td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 8px; /* Ajustado ligeramente */
+  text-align: left; /* Mejor para tablas de datos */
 }
+
 .client-table th {
   background-color: #D4AF37;
   color: #FFF8E7;
+  position: sticky; /* Hace que los encabezados se queden fijos al hacer scroll vertical en la tabla */
+  top: 0;           /* Necesario para position: sticky */
+  z-index: 1;       /* Para que esté por encima del contenido de la tabla */
 }
+
+.client-table td:last-child { /* Para la columna de acciones */
+  text-align: center;
+}
+
 .thumb {
   width: 50px;
   height: 50px;
   object-fit: cover;
   border-radius: 4px;
+  display: block; /* Para evitar espacio extra debajo de la imagen */
+  margin: auto; /* Si la celda es más grande, centra la imagen */
 }
+
 .edit-btn,
 .delete-btn {
   padding: 6px 10px;
@@ -58,18 +84,23 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 0.8rem;
 }
+
 .edit-btn {
   background-color: #ffc107;
   color: black;
 }
+
 .edit-btn:hover {
   background-color: #e0a800;
 }
+
 .delete-btn {
   background-color: #dc3545;
   color: white;
 }
+
 .delete-btn:hover {
   background-color: #c82333;
 }
@@ -77,63 +108,201 @@ body {
 /* Modal */
 .modal {
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.5);
-  display:flex; align-items:center; justify-content:center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Un poco más oscuro para mejor contraste */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Asegurar que el modal esté por encima de todo */
+  padding: 15px; /* Padding para que el modal no toque los bordes en pantallas muy pequeñas */
+  box-sizing: border-box;
 }
+
 .modal-content {
   background: #F5F5DC;
-  padding:30px;
-  border-radius:15px;
-  width: 400px;
-  max-height: 90vh;
-  overflow-y: auto;
-  text-align:center;
+  padding: 20px 25px; /* Ajustado */
+  border-radius: 10px; /* Suavizado */
+  width: 90%; /* Responsivo para móviles */
+  max-width: 500px; /* Límite para pantallas más grandes */
+  max-height: 90vh; /* Máxima altura relativa al viewport */
+  overflow-y: auto; /* Scroll si el contenido del modal es muy largo */
+  text-align: left; /* Mejor para formularios */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-sizing: border-box;
 }
+
 .modal-content h2 {
-  color:#D4AF37;
-  font-family:'Playfair Display',serif;
-  margin-bottom:20px;
+  color: #D4AF37;
+  font-family: 'Playfair Display', serif;
+  margin-top: 0; /* Quitar margen superior por defecto del h2 */
+  margin-bottom: 20px;
+  text-align: center; /* Centrar el título del modal */
 }
+
 .modal-content form input,
 .modal-content form select,
 .modal-content form textarea {
-  width: 80%;
-  padding:10px;
-  margin:8px 0;
-  border:1px solid #D4AF37;
-  border-radius:6px;
-  background:#FFF8E7;
+  width: 100%; /* Ocupan todo el ancho disponible en el form */
+  padding: 10px;
+  margin-bottom: 12px; /* Espacio entre campos */
+  border: 1px solid #D4AF37;
+  border-radius: 6px;
+  background: #FFF8E7;
+  box-sizing: border-box; /* Importante para que padding no afecte el width total */
+  font-size: 0.95rem;
 }
+
+.modal-content form textarea {
+    min-height: 80px; /* Altura mínima para textareas */
+    resize: vertical; /* Permitir redimensionar verticalmente */
+}
+
 .modal-content form label {
-  display:block;
-  margin-top:10px;
-  color:#5A4A42;
+  display: block;
+  margin-bottom: 5px; /* Espacio antes del input */
+  color: #5A4A42;
+  font-weight: bold;
+  font-size: 0.9rem;
 }
+
 .ingrediente-row {
-  display:flex;
-  gap:8px;
-  justify-content:center;
-  align-items:center;
-  margin-bottom:8px;
+  display: flex;
+  flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea en móviles */
+  gap: 10px; /* Espacio entre elementos */
+  align-items: center;
+  margin-bottom: 10px;
 }
+
 .ingrediente-row select,
 .ingrediente-row input {
-  width: 35%;
+  flex: 1 1 150px; /* Crecer y encogerse, con una base de 150px */
+  /* width: auto; Ya no es necesario por flex */
+  margin-bottom: 0; /* Quitar margen inferior si está en flex row */
 }
-.modal-content form button {
-  margin-top:10px;
-  padding:10px 20px;
-  border:none;
-  background:#D4AF37;
-  color:#FFF8E7;
-  border-radius:6px;
-  cursor:pointer;
+
+.remove-ingrediente-btn {
+  background-color: #ef5350 !important; /* Usar !important con cuidado si es necesario */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  flex-shrink: 0; /* Evitar que el botón se encoja */
 }
-.modal-content form button[type="button"] {
-  background:#6c757d;
+.remove-ingrediente-btn:hover {
+  background-color: #d32f2f !important;
 }
-.modal-content form button:hover {
-  background:#B38B2D;
+
+.add-ingrediente-btn {
+  background-color: #66bb6a !important;
+  color: white;
+  padding: 8px 12px !important;
+  display: inline-block; /* Para que no ocupe todo el ancho */
+  margin-top: 5px !important; /* Ajuste de margen */
+  margin-bottom: 15px !important;
+}
+.add-ingrediente-btn:hover {
+  background-color: #43a047 !important;
+}
+
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end; /* Alinea botones a la derecha */
+  gap: 10px; /* Espacio entre botones */
+  margin-top: 20px;
+}
+
+.modal-content form button { /* Estilo general para botones dentro del form del modal */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.modal-content form button.save-btn {
+  background: #D4AF37;
+  color: #FFF8E7;
+}
+.modal-content form button.save-btn:hover {
+  background: #B38B2D;
+}
+
+.modal-content form button.cancel-btn {
+  background: #6c757d;
+  color: white;
+}
+.modal-content form button.cancel-btn:hover {
+  background: #5a6268;
+}
+
+/* Media queries para mejorar responsividad si es necesario */
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.8rem;
+  }
+  .client-table th,
+  .client-table td {
+    padding: 6px;
+    font-size: 0.85rem;
+  }
+  .edit-btn, .delete-btn {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+  .modal-content {
+    padding: 15px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+  .client-table {
+    font-size: 0.8rem; /* Reducir más si es necesario */
+  }
+  .client-table th,
+  .client-table td {
+    padding: 5px;
+  }
+  .add-btn {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+  .modal-actions {
+    flex-direction: column; /* Apila botones en modal en pantallas muy pequeñas */
+  }
+  .modal-actions button {
+    width: 100%; /* Botones ocupan todo el ancho */
+    margin-bottom: 8px; /* Espacio entre botones apilados */
+  }
+  .modal-actions button:last-child {
+    margin-bottom: 0;
+  }
+  .ingrediente-row {
+    flex-direction: column; /* Apila los elementos de ingrediente en móviles */
+    align-items: stretch; /* Estira los elementos para que ocupen el ancho */
+  }
+  .ingrediente-row select,
+  .ingrediente-row input,
+  .ingrediente-row button {
+    width: 100%; /* Ocupan todo el ancho */
+    margin-bottom: 8px; /* Espacio entre ellos */
+  }
+  .ingrediente-row button.remove-ingrediente-btn {
+    align-self: flex-end; /* Mueve el botón de eliminar a la derecha */
+    width: auto; /* Ancho automático para el botón cuando está en columna */
+    padding: 5px 10px;
+  }
+
 }
