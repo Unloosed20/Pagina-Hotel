@@ -19,7 +19,7 @@ const GestionRestaurante = () => {
     numero_copas_botella: "",
     imagen_file: null,
     imagen_url: "",
-    ingredientes: []   // para receta_item
+    ingredientes: []
   });
 
   useEffect(() => {
@@ -29,14 +29,16 @@ const GestionRestaurante = () => {
   }, []);
 
   const fetchItems = async () => {
-    const { data, error } = await supabase.from("items_menu_bar").select("*");
+    const { data, error } = await supabase
+      .from("items_menu_bar")
+      .select("*");
     if (!error) setItems(data);
   };
 
   const fetchPedidos = async () => {
     const { data, error } = await supabase
       .from("pedidos")
-      .select("*, detalles:detalles_pedidos(*)");
+      .select("id, created_at, estado, detalles:detalles_pedidos(*)");
     if (!error) setPedidos(data);
   };
 
@@ -100,7 +102,6 @@ const GestionRestaurante = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Subir imagen
     let url = formData.imagen_url;
     if (formData.imagen_file) {
       const ext = formData.imagen_file.name.split('.').pop();
@@ -115,11 +116,9 @@ const GestionRestaurante = () => {
         .storage
         .from("items_menu_bar")
         .getPublicUrl(fileName);
-      if (urlErr) console.error("Error obteniendo URL pública:", urlErr);
-      else url = urlData.publicUrl;
+      if (!urlErr) url = urlData.publicUrl;
     }
 
-    // Payload
     const payload = {
       nombre: formData.nombre,
       descripcion: formData.descripcion,
@@ -135,18 +134,26 @@ const GestionRestaurante = () => {
     if (isEditing && itemId) {
       await supabase.from("items_menu_bar").update(payload).eq("id", itemId);
     } else {
-      const { data } = await supabase.from("items_menu_bar").insert([payload]).select().single();
+      const { data } = await supabase.from("items_menu_bar")
+        .insert([payload])
+        .select()
+        .single();
       itemId = data.id;
     }
 
-    // Receta
     if (isEditing) {
       await supabase.from("receta_item").delete().eq("item_id", itemId);
     }
     const receta = formData.ingredientes
       .filter(i => i.producto_id && i.cantidad_usada > 0)
-      .map(i => ({ item_id: itemId, producto_id: i.producto_id, cantidad_usada: i.cantidad_usada }));
-    if (receta.length) await supabase.from("receta_item").insert(receta);
+      .map(i => ({
+        item_id: itemId,
+        producto_id: i.producto_id,
+        cantidad_usada: i.cantidad_usada
+      }));
+    if (receta.length) {
+      await supabase.from("receta_item").insert(receta);
+    }
 
     fetchItems();
     closeModal();
@@ -183,12 +190,27 @@ const GestionRestaurante = () => {
                 <tr key={item.id}>
                   <td>
                     {item.imagen_url && (
-                      <img src={item.imagen_url.startsWith('http') ? item.imagen_url : supabase.storage.from('items_menu_bar').getPublicUrl(item.imagen_url).data.publicUrl} alt={item.nombre} className="thumb" />
+                      <img
+                        src={
+                          item.imagen_url.startsWith('http')
+                            ? item.imagen_url
+                            : supabase.storage
+                                .from('items_menu_bar')
+                                .getPublicUrl(item.imagen_url)
+                                .data.publicUrl
+                        }
+                        alt={item.nombre}
+                        className="thumb"
+                      />
                     )}
                   </td>
                   <td>{item.nombre}</td>
                   <td>{item.tipo}</td>
-                  <td>{item.tipo==='Bebida' && item.precio_copa ? `Copa ${item.precio_copa}` : item.precio}</td>
+                  <td>
+                    {item.tipo === 'Bebida' && item.precio_copa
+                      ? `Copa ${item.precio_copa}`
+                      : item.precio}
+                  </td>
                   <td>{item.disponible ? 'Sí' : 'No'}</td>
                   <td>
                     <button className="edit-btn" onClick={() => openModal(item)}>Editar</button>
@@ -210,14 +232,29 @@ const GestionRestaurante = () => {
                 <th>ID Pedido</th>
                 <th>Detalle</th>
                 <th>Fecha</th>
+                <th>Estado</th>
               </tr>
             </thead>
             <tbody>
               {pedidos.map(p => (
                 <tr key={p.id}>
                   <td>{p.id}</td>
-                  <td>{p.detalles.map(d => `${d.item_id} x${d.cantidad}`).join(', ')}</td>
-                  <td>{new Date(p.created_at).toLocaleString()}</td>
+                  <td>
+                    {p.detalles
+                      .map(d => {
+                        const itemObj = items.find(i => i.id === d.item_id);
+                        const nombre = itemObj ? itemObj.nombre : `#${d.item_id}`;
+                        return `${nombre} x${d.cantidad}`;
+                      })
+                      .join(", ")}
+                  </td>
+                  <td>
+                    {new Date(p.created_at).toLocaleString("es-MX", {
+                      dateStyle: "short",
+                      timeStyle: "short"
+                    })}
+                  </td>
+                  <td>{p.estado}</td>
                 </tr>
               ))}
             </tbody>
@@ -230,60 +267,116 @@ const GestionRestaurante = () => {
           <div className="modal-content">
             <h2>{isEditing ? 'Editar Item' : 'Registrar Item'}</h2>
             <form onSubmit={handleSubmit}>
-              <input name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required/>
-              <textarea name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleChange}/>
+              <input
+                name="nombre"
+                placeholder="Nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                required
+              />
+              <textarea
+                name="descripcion"
+                placeholder="Descripción"
+                value={formData.descripcion}
+                onChange={handleChange}
+              />
               <select name="tipo" value={formData.tipo} onChange={handleChange}>
                 <option value="Comida">Comida</option>
                 <option value="Bebida">Bebida</option>
               </select>
-              <input name="precio" type="number" step="0.01" placeholder="Precio" value={formData.precio} onChange={handleChange} required/>
-              {formData.tipo==='Bebida' && <>
-                <input name="precio_copa" type="number" step="0.01" placeholder="Precio Copa" value={formData.precio_copa} onChange={handleChange}/>
-                <input name="numero_copas_botella" type="number" placeholder="Copas/Botella" value={formData.numero_copas_botella} onChange={handleChange}/>
-              </>}
+              <input
+                name="precio"
+                type="number"
+                step="0.01"
+                placeholder="Precio"
+                value={formData.precio}
+                onChange={handleChange}
+                required
+              />
+              {formData.tipo === 'Bebida' && (
+                <>
+                  <input
+                    name="precio_copa"
+                    type="number"
+                    step="0.01"
+                    placeholder="Precio Copa"
+                    value={formData.precio_copa}
+                    onChange={handleChange}
+                  />
+                  <input
+                    name="numero_copas_botella"
+                    type="number"
+                    placeholder="Copas/Botella"
+                    value={formData.numero_copas_botella}
+                    onChange={handleChange}
+                  />
+                </>
+              )}
               <label>Imagen:</label>
-              <input type="file" name="imagen_file" accept="image/*" onChange={handleChange}/>
+              <input
+                type="file"
+                name="imagen_file"
+                accept="image/*"
+                onChange={handleChange}
+              />
               <h3>Ingredientes</h3>
-              {formData.ingredientes.map((ing, idx)=>(
+              {formData.ingredientes.map((ing, idx) => (
                 <div key={idx} className="ingrediente-row">
-                  <select value={ing.producto_id} onChange={e=>{
-                    const pid=parseInt(e.target.value,10);
-                    setFormData(f=>{
-                      const arr=[...f.ingredientes];
-                      arr[idx].producto_id=pid;
-                      return {...f,ingredientes:arr};
-                    });
-                  }}>
+                  <select
+                    value={ing.producto_id}
+                    onChange={e => {
+                      const pid = parseInt(e.target.value, 10);
+                      setFormData(f => {
+                        const arr = [...f.ingredientes];
+                        arr[idx].producto_id = pid;
+                        return { ...f, ingredientes: arr };
+                      });
+                    }}
+                  >
                     <option value="">Selecciona producto</option>
-                    {productos.map(p=>(
+                    {productos.map(p => (
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
                   </select>
-                  <input type="number" step="0.01" min="0.01" placeholder="Cant. usada"
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    placeholder="Cant. usada"
                     value={ing.cantidad_usada}
-                    onChange={e=>{
-                      const c=parseFloat(e.target.value);
-                      setFormData(f=>{
-                        const arr=[...f.ingredientes];
-                        arr[idx].cantidad_usada=c;
-                        return {...f,ingredientes:arr};
+                    onChange={e => {
+                      const c = parseFloat(e.target.value);
+                      setFormData(f => {
+                        const arr = [...f.ingredientes];
+                        arr[idx].cantidad_usada = c;
+                        return { ...f, ingredientes: arr };
                       });
                     }}
                   />
-                  <button type="button" onClick={()=>{
-                    setFormData(f=>{
-                      const arr=f.ingredientes.filter((_,i)=>i!==idx);
-                      return {...f,ingredientes:arr};
-                    });
-                  }}>×</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(f => {
+                        const arr = f.ingredientes.filter((_, i) => i !== idx);
+                        return { ...f, ingredientes: arr };
+                      });
+                    }}
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
-              <button type="button" onClick={()=>{
-                setFormData(f=>({
-                  ...f,
-                  ingredientes:[...f.ingredientes,{producto_id:"",cantidad_usada:""}]
-                }));
-              }}>+ Agregar Ingrediente</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(f => ({
+                    ...f,
+                    ingredientes: [...f.ingredientes, { producto_id: "", cantidad_usada: "" }]
+                  }));
+                }}
+              >
+                + Agregar Ingrediente
+              </button>
               <button type="submit">Guardar</button>
               <button type="button" onClick={closeModal}>Cancelar</button>
             </form>
