@@ -33,6 +33,7 @@ import TicketPedido from "./components/TicketPedido";
 import ServiciosCliente from "./components/ServiciosCliente";
 import OrdenServicio from "./components/OrdenServicio";
 import PagosServicio from "./components/PagosServicio";
+import TicketServicio from "./components/TicketServicio";
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
           <Route path="/servicio-cliente" element={<ServiciosCliente />} />
           <Route path="/orden-servicio" element={<OrdenServicio />} />
           <Route path="/pagos-servicio" element={<PagosServicio />} />
+          <Route path="/Ticket-servicio" element={<TicketServicio />} />
         </Route>
 
         {/* Administradores (role_id === 1) */}
