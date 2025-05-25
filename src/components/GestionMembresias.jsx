@@ -1,53 +1,50 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import "./GestionMembresias.css";
 
 const GestionMembresias = () => {
   const [membresias, setMembresias] = useState([]);
   const [solicitudes, setSolicitudes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({
-    nombre: "",
-    nivel: "",
-    descuento_porcentaje: "",
-    descripcion: ""
-  });
+  const [form, setForm] = useState({ nombre: "", nivel: "", descuento_porcentaje: "", descripcion: "" });
 
   useEffect(() => {
-    fetchMembresias();
-    fetchSolicitudes();
+    const loadAll = async () => {
+      try {
+        const [memRes, solRes] = await Promise.all([
+          supabase.from("membresias").select("*"),
+          supabase.from("solicitudes_membresias").select(
+            `id, fecha_solicitud, estado, observaciones, cliente:clientes(nombre, apellido_paterno), membresia:membresias(nombre)`
+          )
+        ]);
+        if (memRes.error) throw memRes.error;
+        if (solRes.error) throw solRes.error;
+        setMembresias(memRes.data || []);
+        setSolicitudes(solRes.data || []);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAll();
   }, []);
 
-  const fetchMembresias = async () => {
-    const { data, error } = await supabase.from("membresias").select("*");
-    if (!error) setMembresias(data);
-  };
-
-  const fetchSolicitudes = async () => {
-    const { data, error } = await supabase
-      .from("solicitudes_membresias")
-      .select(`
-        id,
-        fecha_solicitud,
-        estado,
-        observaciones,
-        cliente:clientes(nombre, apellido_paterno),
-        membresia:membresias(nombre)
-      `);
-    if (!error) setSolicitudes(data);
-  };
-
   const openModal = (m = null) => {
+    setError(null);
     if (m) {
       setIsEditing(true);
       setEditing(m);
       setForm({
         nombre: m.nombre,
-        nivel: m.nivel,
-        descuento_porcentaje: m.descuento_porcentaje,
-        descripcion: m.descripcion
+        nivel: m.nivel.toString(),
+        descuento_porcentaje: m.descuento_porcentaje.toString(),
+        descripcion: m.descripcion || ""
       });
     } else {
       setIsEditing(false);
@@ -56,6 +53,7 @@ const GestionMembresias = () => {
     }
     setModalOpen(true);
   };
+
   const closeModal = () => setModalOpen(false);
 
   const handleChange = e => {
@@ -65,37 +63,57 @@ const GestionMembresias = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    const payload = {
-      nombre: form.nombre,
-      nivel: parseInt(form.nivel, 10),
-      descuento_porcentaje: parseFloat(form.descuento_porcentaje),
-      descripcion: form.descripcion
-    };
-    if (isEditing && editing) {
-      await supabase.from("membresias").update(payload).eq("id", editing.id);
-      alert("Membresía actualizada");
-    } else {
-      await supabase.from("membresias").insert([payload]);
-      alert("Membresía registrada");
+    try {
+      setLoading(true);
+      const payload = {
+        nombre: form.nombre,
+        nivel: parseInt(form.nivel, 10),
+        descuento_porcentaje: parseFloat(form.descuento_porcentaje),
+        descripcion: form.descripcion
+      };
+      let res;
+      if (isEditing && editing) {
+        res = await supabase.from("membresias").update(payload).eq("id", editing.id);
+      } else {
+        res = await supabase.from("membresias").insert([payload]);
+      }
+      if (res.error) throw res.error;
+      alert(isEditing ? "Membresía actualizada" : "Membresía registrada");
+      // reload list
+      const { data, error } = await supabase.from("membresias").select("*");
+      if (error) throw error;
+      setMembresias(data || []);
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    fetchMembresias();
-    closeModal();
   };
 
   const handleDelete = async id => {
-    if (window.confirm("¿Eliminar esta membresía?")) {
-      await supabase.from("membresias").delete().eq("id", id);
-      alert("Membresía eliminada");
-      fetchMembresias();
+    if (!window.confirm("¿Eliminar esta membresía?")) return;
+    try {
+      setLoading(true);
+      const { error: delError } = await supabase.from("membresias").delete().eq("id", id);
+      if (delError) throw delError;
+      setMembresias(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) return <p>Cargando membresías...</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
     <div className="container">
       <h1 className="title">Gestión de Membresías</h1>
-      <button className="add-btn" onClick={() => openModal()}>
-        Nueva Membresía
-      </button>
+      <button className="add-btn" onClick={() => openModal()}>Nueva Membresía</button>
 
       <section className="list-section">
         <h2>Membresías Disponibles</h2>
@@ -103,10 +121,7 @@ const GestionMembresias = () => {
           <table className="client-table">
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>Nivel</th>
-                <th>Descuento %</th>
-                <th>Acciones</th>
+                <th>Nombre</th><th>Nivel</th><th>Descuento %</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -116,8 +131,8 @@ const GestionMembresias = () => {
                   <td>{m.nivel}</td>
                   <td>{m.descuento_porcentaje.toFixed(2)}</td>
                   <td>
-                    <button className="edit-btn" onClick={() => openModal(m)}>Editar</button>
-                    <button className="delete-btn" onClick={() => handleDelete(m.id)}>Eliminar</button>
+                    <button onClick={() => openModal(m)}>Editar</button>
+                    <button onClick={() => handleDelete(m.id)}>Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -132,12 +147,7 @@ const GestionMembresias = () => {
           <table className="client-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Membresía</th>
-                <th>Fecha</th>
-                <th>Estado</th>
-                <th>Obs.</th>
+                <th>ID</th><th>Cliente</th><th>Membresía</th><th>Fecha</th><th>Estado</th><th>Obs.</th>
               </tr>
             </thead>
             <tbody>
@@ -161,36 +171,10 @@ const GestionMembresias = () => {
           <div className="modal-content">
             <h2>{isEditing ? "Editar Membresía" : "Registrar Membresía"}</h2>
             <form onSubmit={handleSubmit}>
-              <input
-                name="nombre"
-                placeholder="Nombre"
-                value={form.nombre}
-                onChange={handleChange}
-                required
-              />
-              <input
-                name="nivel"
-                type="number"
-                placeholder="Nivel"
-                value={form.nivel}
-                onChange={handleChange}
-                required
-              />
-              <input
-                name="descuento_porcentaje"
-                type="number"
-                step="0.01"
-                placeholder="% Descuento"
-                value={form.descuento_porcentaje}
-                onChange={handleChange}
-                required
-              />
-              <textarea
-                name="descripcion"
-                placeholder="Descripción"
-                value={form.descripcion}
-                onChange={handleChange}
-              />
+              <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} required />
+              <input name="nivel" type="number" placeholder="Nivel" value={form.nivel} onChange={handleChange} required />
+              <input name="descuento_porcentaje" type="number" step="0.01" placeholder="% Descuento" value={form.descuento_porcentaje} onChange={handleChange} required />
+              <textarea name="descripcion" placeholder="Descripción" value={form.descripcion} onChange={handleChange} />
               <button type="submit">Guardar</button>
               <button type="button" onClick={closeModal}>Cancelar</button>
             </form>
@@ -198,8 +182,7 @@ const GestionMembresias = () => {
         </div>
       )}
     </div>
-);
-
+  );
 };
 
 export default GestionMembresias;
