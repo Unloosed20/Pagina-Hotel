@@ -55,11 +55,7 @@ const GestionMembresias = () => {
   };
 
   const closeModal = () => setModalOpen(false);
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
+  const handleChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -79,10 +75,8 @@ const GestionMembresias = () => {
       }
       if (res.error) throw res.error;
       alert(isEditing ? "Membresía actualizada" : "Membresía registrada");
-      // reload list
-      const { data, error } = await supabase.from("membresias").select("*");
-      if (error) throw error;
-      setMembresias(data || []);
+      const { data: updated } = await supabase.from("membresias").select("*");
+      setMembresias(updated || []);
       closeModal();
     } catch (err) {
       console.error(err);
@@ -120,16 +114,14 @@ const GestionMembresias = () => {
         <div className="scroll-container">
           <table className="client-table">
             <thead>
-              <tr>
-                <th>Nombre</th><th>Nivel</th><th>Descuento %</th><th>Acciones</th>
-              </tr>
+              <tr><th>Nombre</th><th>Nivel</th><th>Descuento %</th><th>Acciones</th></tr>
             </thead>
             <tbody>
               {membresias.map(m => (
                 <tr key={m.id}>
                   <td>{m.nombre}</td>
                   <td>{m.nivel}</td>
-                  <td>{m.descuento_porcentaje.toFixed(2)}</td>
+                  <td>{(m.descuento_porcentaje ?? 0).toFixed(2)}</td>
                   <td>
                     <button onClick={() => openModal(m)}>Editar</button>
                     <button onClick={() => handleDelete(m.id)}>Eliminar</button>
@@ -146,21 +138,23 @@ const GestionMembresias = () => {
         <div className="scroll-container">
           <table className="client-table">
             <thead>
-              <tr>
-                <th>ID</th><th>Cliente</th><th>Membresía</th><th>Fecha</th><th>Estado</th><th>Obs.</th>
-              </tr>
+              <tr><th>ID</th><th>Cliente</th><th>Membresía</th><th>Fecha</th><th>Estado</th><th>Obs.</th></tr>
             </thead>
             <tbody>
-              {solicitudes.map(s => (
-                <tr key={s.id}>
-                  <td>{s.id}</td>
-                  <td>{`${s.cliente.nombre} ${s.cliente.apellido_paterno}`}</td>
-                  <td>{s.membresia.nombre}</td>
-                  <td>{new Date(s.fecha_solicitud).toLocaleString()}</td>
-                  <td>{s.estado}</td>
-                  <td>{s.observaciones || "-"}</td>
-                </tr>
-              ))}
+              {solicitudes.map(s => {
+                const clienteNombre = s.cliente ? `${s.cliente.nombre} ${s.cliente.apellido_paterno}` : "-";
+                const membresiaNombre = s.membresia?.nombre || "-";
+                return (
+                  <tr key={s.id}>
+                    <td>{s.id}</td>
+                    <td>{clienteNombre}</td>
+                    <td>{membresiaNombre}</td>
+                    <td>{new Date(s.fecha_solicitud).toLocaleString()}</td>
+                    <td>{s.estado}</td>
+                    <td>{s.observaciones || "-"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
