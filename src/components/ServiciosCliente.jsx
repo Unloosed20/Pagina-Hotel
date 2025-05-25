@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import './ServiciosCliente.css';
+import NavBar from './NavBar';
 
 const ServiciosCliente = () => {
   const [servicios, setServicios] = useState([]);
@@ -61,6 +62,7 @@ const ServiciosCliente = () => {
 
   return (
     <div className="sc-container">
+        <NavBar />
       <h1 className="sc-title">Servicios Adicionales</h1>
       <div className="sc-grid">
         {servicios.map(serv => (

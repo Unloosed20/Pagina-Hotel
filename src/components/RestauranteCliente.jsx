@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./RestauranteCliente.css";
+import NavBar from "./NavBar";
 
 const RestauranteCliente = () => {
   const [items, setItems] = useState([]);
@@ -68,6 +69,7 @@ const RestauranteCliente = () => {
 
   return (
     <div className="rc-container">
+      <NavBar />
       <h1 className="rc-title">Nuestro Menú</h1>
 
       <div className="rc-grid" style={{ maxHeight: '70vh', overflowY: 'auto' }}>

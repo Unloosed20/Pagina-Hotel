@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { supabase } from "../supabaseClient";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ReservaHabitacion.css";
+import NavBar from "./NavBar";
 
 const ReservaHabitacion = () => {
   const location = useLocation();
@@ -265,6 +266,7 @@ const ReservaHabitacion = () => {
 
   return (
     <div className="reserva-container">
+      <NavBar />
       <h2>Reserva tu Habitación</h2>
       {error && <p className="error-message">{error}</p>}
 

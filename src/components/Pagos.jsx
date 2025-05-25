@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Pagos.css"; // Asegúrate de tener este archivo de estilos
+import NavBar from "./NavBar";
 
 const Pagos = () => {
   const location = useLocation();
@@ -126,6 +127,7 @@ const Pagos = () => {
 
   return (
     <div className="pagos-container">
+      <NavBar />
       <h2>Pago de Factura #{(factura?.id || 'Desconocida')}</h2>
       <p>
         Total a pagar: <strong>${typeof total === 'number' ? total.toFixed(2) : 'N/A'}</strong>
