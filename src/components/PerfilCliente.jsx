@@ -8,62 +8,88 @@ const PerfilCliente = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ nombre: '', email: '' });
   const [membresiaReqStatus, setMembresiaReqStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const userRaw = localStorage.getItem('user');
-      if (!userRaw) return;
-      const user = JSON.parse(userRaw);
-      // Traer datos de cliente
-      const { data: cli } = await supabase
-        .from('clientes')
-        .select('id, nombre, email, membresia_id, membresia: membresias(nombre)')
-        .eq('usuario_id', user.id)
-        .single();
-      setCliente(cli);
-      setFormData({ nombre: cli.nombre, email: cli.email });
-      // Traer reservas
-      const { data: res } = await supabase
-        .from('reservas')
-        .select('id, fecha_inicio, fecha_fin')
-        .eq('cliente_id', cli.id);
-      setReservas(res);
-      // Traer última solicitud de membresía
-      const { data: req } = await supabase
-        .from('solicitudes_membresias')
-        .select('estado')
-        .eq('cliente_id', cli.id)
-        .order('fecha_solicitud', { ascending: false })
-        .limit(1)
-        .single();
-      setMembresiaReqStatus(req?.estado || null);
+      try {
+        const userRaw = localStorage.getItem('user');
+        if (!userRaw) throw new Error('Usuario no autenticado');
+        const user = JSON.parse(userRaw);
+
+        // Cliente
+        const { data: cli, error: cliError } = await supabase
+          .from('clientes')
+          .select('id, nombre, email, membresia_id, membresias(nombre)')
+          .eq('usuario_id', user.id)
+          .single();
+        if (cliError) throw cliError;
+        setCliente(cli);
+        setFormData({ nombre: cli.nombre, email: cli.email });
+
+        // Reservas
+        const { data: res, error: resError } = await supabase
+          .from('reservas')
+          .select('id, fecha_inicio, fecha_fin')
+          .eq('cliente_id', cli.id);
+        if (resError) throw resError;
+        setReservas(res || []);
+
+        // Última solicitud de membresía
+        const { data: req, error: reqError } = await supabase
+          .from('solicitudes_membresias')
+          .select('estado')
+          .eq('cliente_id', cli.id)
+          .order('fecha_solicitud', { ascending: false })
+          .limit(1)
+          .single();
+        if (reqError && reqError.code !== 'PGRST116') throw reqError;
+        setMembresiaReqStatus(req?.estado || null);
+      } catch (err) {
+        console.error('Error cargando datos:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
+  if (loading) return <p>Cargando perfil...</p>;
+  if (error) return <p className="error">{error}</p>;
+
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
-    await supabase
-      .from('clientes')
-      .update({ nombre: formData.nombre, email: formData.email })
-      .eq('id', cliente.id);
-    setCliente(prev => ({ ...prev, ...formData }));
-    closeModal();
+    try {
+      const { error: updateError } = await supabase
+        .from('clientes')
+        .update({ nombre: formData.nombre, email: formData.email })
+        .eq('id', cliente.id);
+      if (updateError) throw updateError;
+      setCliente(prev => ({ ...prev, ...formData }));
+      closeModal();
+    } catch (err) {
+      console.error('Error actualizando perfil:', err);
+      alert('No se pudo actualizar el perfil');
+    }
   };
 
   const solicitarMembresia = async () => {
-    await supabase.from('solicitudes_membresias').insert([{ cliente_id: cliente.id, membresia_id: cliente.membresia_id }]);
-    setMembresiaReqStatus('Pendiente');
+    try {
+      const { error: solError } = await supabase
+        .from('solicitudes_membresias')
+        .insert([{ cliente_id: cliente.id, membresia_id: cliente.membresia_id }]);
+      if (solError) throw solError;
+      setMembresiaReqStatus('Pendiente');
+    } catch (err) {
+      console.error('Error solicitando membresía:', err);
+      alert('No se pudo solicitar la membresía');
+    }
   };
-
-  if (!cliente) return <p>Cargando perfil...</p>;
 
   return (
     <div className="pc-container">
@@ -76,7 +102,7 @@ const PerfilCliente = () => {
       </div>
       <div className="pc-membership">
         <h2>Nivel de Membresía</h2>
-        <p>{cliente.membresia.nombre}</p>
+        <p>{cliente.membresias?.nombre || 'Sin nivel'}</p>
         <button onClick={solicitarMembresia} disabled={membresiaReqStatus === 'Pendiente'}>
           {membresiaReqStatus === 'Pendiente' ? 'Solicitud Pendiente' : 'Solicitar Actualización'}
         </button>
