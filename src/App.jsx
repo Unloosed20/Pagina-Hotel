@@ -81,7 +81,7 @@ function App() {
           <Route path="/gestion-servicios" element={<GestionServicios />} />
           <Route path="/gestion-membresias" element={<GestionMembresias />} />
           <Route path="/gestion-reservas" element={<GestionReservas />} />
-          <Route path="/gestion-pagos" element={<GestionReservas />} />
+          <Route path="/gestion-pagos" element={<GestionPagos />} />
         </Route>
       </Routes>
     </Router>
