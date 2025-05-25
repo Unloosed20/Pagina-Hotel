@@ -8,6 +8,7 @@ const TicketServicio = () => {
   const navigate = useNavigate();
   const { reservas } = useLocation().state || {};
   const [detalles, setDetalles] = useState([]);
+  const [cliente, setCliente] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,23 +16,37 @@ const TicketServicio = () => {
       navigate('/servicios-cliente');
       return;
     }
+    // Obtener datos de cliente
+    const userRaw = localStorage.getItem('user');
+    if (userRaw) {
+      const user = JSON.parse(userRaw);
+      supabase.from('clientes')
+        .select('nombre, apellido_paterno')
+        .eq('usuario_id', user.id)
+        .single()
+        .then(({ data, error }) => {
+          if (!error) setCliente(data);
+        });
+    }
     // Cargar información de servicios
     Promise.all(
       reservas.map(r =>
         supabase
           .from('servicios')
-          .select('nombre,precio')
+          .select('nombre, precio')
           .eq('id', r.servicio_id)
           .single()
           .then(({ data }) => ({ ...r, servicio: data }))
       )
-    ).then(results => {
-      setDetalles(results);
-      setLoading(false);
-    }).catch(err => {
-      console.error('Error cargando detalles:', err);
-      setLoading(false);
-    });
+    )
+      .then(results => {
+        setDetalles(results);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error cargando detalles:', err);
+        setLoading(false);
+      });
   }, [navigate, reservas]);
 
   if (loading) return <div className="ts-container">Cargando ticket...</div>;
@@ -42,6 +57,13 @@ const TicketServicio = () => {
   return (
     <div className="ts-container">
       <h2 className="ts-header">Ticket de Servicios</h2>
+
+      {cliente && (
+        <div className="ts-client">
+          <strong>Cliente:</strong> {cliente.nombre} {cliente.apellido_paterno}
+        </div>
+      )}
+
       <ul className="ts-list">
         {detalles.map(d => (
           <li key={d.id} className="ts-item">
@@ -50,9 +72,11 @@ const TicketServicio = () => {
           </li>
         ))}
       </ul>
+
       <div className="ts-total">
         <strong>Total: ${total.toFixed(2)}</strong>
       </div>
+
       <button className="ts-print" onClick={() => window.print()}>
         Imprimir Ticket
       </button>
