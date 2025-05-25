@@ -24,9 +24,7 @@ const GestionServicios = () => {
   }, []);
 
   const fetchServicios = async () => {
-    const { data, error } = await supabase
-      .from("servicios")
-      .select("*, imagen_url");
+    const { data, error } = await supabase.from("servicios").select("*");
     if (!error) setServicios(data);
   };
 
@@ -81,11 +79,11 @@ const GestionServicios = () => {
     e.preventDefault();
     let url = formData.imagen_url;
 
-    // Si sube una nueva imagen
     if (formData.imagen_file) {
       const ext = formData.imagen_file.name.split('.').pop();
       const fileName = `${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase
+
+      const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from("servicios")
         .upload(fileName, formData.imagen_file, { upsert: true });
@@ -94,12 +92,12 @@ const GestionServicios = () => {
         return alert("Error subiendo imagen: " + uploadError.message);
       }
 
-      const { publicURL } = supabase
+      const { data: publicData } = supabase
         .storage
         .from("servicios")
         .getPublicUrl(fileName);
 
-      url = publicURL;
+      url = publicData.publicUrl;
     }
 
     const payload = {
@@ -133,10 +131,7 @@ const GestionServicios = () => {
   return (
     <div className="container">
       <h1 className="title">Gestión de Servicios</h1>
-
-      <button className="add-btn" onClick={() => openModal()}>
-        Nuevo Servicio
-      </button>
+      <button className="add-btn" onClick={() => openModal()}>Nuevo Servicio</button>
 
       <section className="list-section">
         <h2>Servicios Disponibles</h2>
@@ -252,8 +247,8 @@ const GestionServicios = () => {
         </div>
       )}
     </div>
-);
-
+  );
 };
 
 export default GestionServicios;
+
