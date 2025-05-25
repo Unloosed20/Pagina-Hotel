@@ -154,11 +154,31 @@ body {
   background-color: #B38B2D;
 }
 
-@media (max-width: 768px) {
-  .filter {
-    flex-direction: column;
+/* Contenedor de scroll mejorado para tablas */
+.scroll-container {
+  width: 100%;
+  max-height: 60vh;        /* Limita la altura para que no desborde verticalmente */
+  overflow: auto;          /* Scroll tanto vertical como horizontal */
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
+  border: 1px solid #ddd;  /* Opcional: un borde ligero para delimitar */
+  border-radius: 5px;
+}
+
+/* Ajustes para que la tabla ocupe el ancho mínimo del contenedor */
+.client-table {
+  width: 100%;
+  min-width: 600px;        /* Asegura que en pantallas amplias mantenga columnas legibles */
+  border-collapse: collapse;
+}
+
+/* En pantallas muy pequeñas, quitamos el min-width para que quepa */
+@media (max-width: 480px) {
+  .client-table {
+    min-width: 100%;
   }
-  .modal-content {
-    width: 95%;
+  .scroll-container {
+    max-height: 50vh;      /* Ajusta la altura del scroll en móvil */
   }
 }
+
