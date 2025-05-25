@@ -51,6 +51,8 @@ const TicketServicio = () => {
 
   if (loading) return <div className="ts-container">Cargando ticket...</div>;
 
+  // Fecha de emisión
+  const fechaEmision = new Date();
   // Calcular total
   const total = detalles.reduce((sum, d) => sum + (d.servicio?.precio || 0), 0);
 
@@ -58,17 +60,21 @@ const TicketServicio = () => {
     <div className="ts-container">
       <h2 className="ts-header">Ticket de Servicios</h2>
 
-      {cliente && (
-        <div className="ts-client">
-          <strong>Cliente:</strong> {cliente.nombre} {cliente.apellido_paterno}
-        </div>
-      )}
+      <div className="ts-meta">
+        <div><strong>Emitido:</strong> {fechaEmision.toLocaleString()}</div>
+        {cliente && (
+          <div><strong>Cliente:</strong> {cliente.nombre} {cliente.apellido_paterno}</div>
+        )}
+      </div>
 
       <ul className="ts-list">
         {detalles.map(d => (
           <li key={d.id} className="ts-item">
-            <span>{d.servicio?.nombre}</span>
-            <span>${(d.servicio?.precio || 0).toFixed(2)}</span>
+            <div className="ts-item-info">
+              <span className="ts-item-name">{d.servicio.nombre}</span>
+              <span className="ts-item-date">Servicio: {new Date(d.fecha_servicio).toLocaleString()}</span>
+            </div>
+            <span className="ts-item-price">${d.servicio.precio.toFixed(2)}</span>
           </li>
         ))}
       </ul>
