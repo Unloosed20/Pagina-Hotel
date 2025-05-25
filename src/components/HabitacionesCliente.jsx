@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./HabitacionesCliente.css";
-import Navbar from "./NavBar";
+import NavBar from "./NavBar";
 
 const HabitacionesCliente = () => {
   const [habitaciones, setHabitaciones] = useState([]);
