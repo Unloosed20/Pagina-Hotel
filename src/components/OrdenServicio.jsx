@@ -6,49 +6,43 @@ import './OrdenServicio.css';
 
 const OrdenServicio = () => {
   const [cart, setCart] = useState([]);
-  const [fecha, setFecha] = useState('');
-  const [clienteId, setClienteId] = useState(null);
+  const [servicioFechas, setServicioFechas] = useState({});
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Cargar carrito de servicios
     const saved = JSON.parse(localStorage.getItem('serviciosCart') || '[]');
     setCart(saved);
-    // Obtener cliente
-    const userRaw = localStorage.getItem('user');
-    if (!userRaw) {
-      navigate('/login');
-      return;
-    }
-    const user = JSON.parse(userRaw);
-    supabase
-      .from('clientes')
-      .select('id')
-      .eq('usuario_id', user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error || !data) setError('Cliente no encontrado');
-        else setClienteId(data.id);
-      });
-  }, [navigate]);
+  }, []);
+
+  const handleFechaChange = (id, value) => {
+    setServicioFechas(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleCancelar = (id) => {
+    const updated = cart.filter(item => item.id !== id);
+    setCart(updated);
+    localStorage.setItem('serviciosCart', JSON.stringify(updated));
+  };
 
   const handleConfirmar = async () => {
-    if (!fecha) {
-      setError('Selecciona fecha y hora');
+    if (cart.length === 0) {
+      setError('No hay servicios para reservar');
       return;
     }
-    if (cart.length === 0) {
-      setError('No hay servicios en el carrito');
-      return;
+    // Validar cada fecha
+    for (let item of cart) {
+      if (!servicioFechas[item.id]) {
+        setError(`Selecciona fecha para ${item.nombre}`);
+        return;
+      }
     }
     setError(null);
     try {
-      // Insertar reservas_servicios
       const inserts = cart.map(item => ({
         reserva_id: null,
         servicio_id: item.id,
-        fecha_servicio: fecha,
+        fecha_servicio: servicioFechas[item.id],
         estado: 'Confirmada'
       }));
       const { data, error: insertErr } = await supabase
@@ -56,7 +50,6 @@ const OrdenServicio = () => {
         .insert(inserts)
         .select();
       if (insertErr) throw insertErr;
-      // Limpiar carrito y navegar a pagos
       localStorage.removeItem('serviciosCart');
       navigate('/pagos-servicio', { state: { reservas: data } });
     } catch (e) {
@@ -65,28 +58,36 @@ const OrdenServicio = () => {
     }
   };
 
+  // Calcular total
+  const total = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+
   return (
     <div className="os-container">
       <h1 className="os-title">Confirmar Reserva de Servicios</h1>
       {error && <p className="os-error">{error}</p>}
-      <label htmlFor="fecha">Fecha y Hora:</label>
-      <input
-        type="datetime-local"
-        id="fecha"
-        value={fecha}
-        onChange={e => setFecha(e.target.value)}
-      />
 
       <div className="os-list">
-        {cart.map((item, idx) => (
-          <div key={idx} className="os-item">
-            <span className="os-name">{item.nombre}</span>
-            <span className="os-cant">x{item.cantidad}</span>
+        {cart.map(item => (
+          <div key={item.id} className="os-item">
+            <div className="os-info">
+              <span className="os-name">{item.nombre} x{item.cantidad}</span>
+              <input
+                type="datetime-local"
+                className="os-datetime"
+                value={servicioFechas[item.id] || ''}
+                onChange={e => handleFechaChange(item.id, e.target.value)}
+              />
+            </div>
+            <button className="os-cancel" onClick={() => handleCancelar(item.id)}>Cancelar</button>
           </div>
         ))}
       </div>
 
-      <button className="os-btn" onClick={handleConfirmar}>
+      <div className="os-total">
+        Total: <strong>${total.toFixed(2)}</strong>
+      </div>
+
+      <button className="os-btn" onClick={handleConfirmar} disabled={cart.length === 0}>
         Reservar Servicios
       </button>
     </div>
