@@ -52,16 +52,21 @@ body {
   background-color: #B38B2D;
 }
 
+/* Contenedor de scroll mejorado para tablas */
 .scroll-container {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   width: 100%;
+  max-height: 60vh;        /* Limita la altura para no desbordar verticalmente */
+  overflow: auto;          /* Scroll vertical y horizontal */
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
+  border: 1px solid #ddd;  /* Borde ligero para delimitar */
+  border-radius: 5px;
 }
 
 .client-table {
   width: 100%;
+  min-width: 600px;        /* Anchura mínima para legibilidad en PC */
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 .client-table th,
@@ -154,31 +159,21 @@ body {
   background-color: #B38B2D;
 }
 
-/* Contenedor de scroll mejorado para tablas */
-.scroll-container {
-  width: 100%;
-  max-height: 60vh;        /* Limita la altura para que no desborde verticalmente */
-  overflow: auto;          /* Scroll tanto vertical como horizontal */
-  -webkit-overflow-scrolling: touch;
-  margin-top: 10px;
-  border: 1px solid #ddd;  /* Opcional: un borde ligero para delimitar */
-  border-radius: 5px;
+/* Ajustes para móviles */
+@media (max-width: 768px) {
+  .filter {
+    flex-direction: column;
+  }
+  .modal-content {
+    width: 95%;
+  }
 }
 
-/* Ajustes para que la tabla ocupe el ancho mínimo del contenedor */
-.client-table {
-  width: 100%;
-  min-width: 600px;        /* Asegura que en pantallas amplias mantenga columnas legibles */
-  border-collapse: collapse;
-}
-
-/* En pantallas muy pequeñas, quitamos el min-width para que quepa */
 @media (max-width: 480px) {
   .client-table {
     min-width: 100%;
   }
   .scroll-container {
-    max-height: 50vh;      /* Ajusta la altura del scroll en móvil */
+    max-height: 50vh;
   }
 }
-
