@@ -1,8 +1,7 @@
-// TicketServicio.jsx
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import './TicketServicio.css';
+import './Ticket.css';
 
 const TicketServicio = () => {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const TicketServicio = () => {
       navigate('/servicios-cliente');
       return;
     }
-    // Obtener datos de cliente
+    // Obtener datos de cliente con reserva asociada
     const userRaw = localStorage.getItem('user');
     if (userRaw) {
       const user = JSON.parse(userRaw);
@@ -28,15 +27,19 @@ const TicketServicio = () => {
           if (!error) setCliente(data);
         });
     }
-    // Cargar información de servicios
+    // Cargar detalles de servicio y reserva
     Promise.all(
       reservas.map(r =>
         supabase
-          .from('servicios')
-          .select('nombre, precio')
-          .eq('id', r.servicio_id)
+          .from('reservas_servicios')
+          .select(`
+            id,
+            fecha_servicio,
+            servicio:servicios(nombre, precio)
+          `)
+          .eq('id', r.id)
           .single()
-          .then(({ data }) => ({ ...r, servicio: data }))
+          .then(({ data }) => data)
       )
     )
       .then(results => {
@@ -49,7 +52,7 @@ const TicketServicio = () => {
       });
   }, [navigate, reservas]);
 
-  if (loading) return <div className="ts-container">Cargando ticket...</div>;
+  if (loading) return <div className="ticket-container"><p>Cargando ticket...</p></div>;
 
   // Fecha de emisión
   const fechaEmision = new Date();
@@ -57,33 +60,36 @@ const TicketServicio = () => {
   const total = detalles.reduce((sum, d) => sum + (d.servicio?.precio || 0), 0);
 
   return (
-    <div className="ts-container">
-      <h2 className="ts-header">Ticket de Servicios</h2>
+    <div className="ticket-container">
+      <h2>Hotel “Punta Arena”</h2>
+      <h3>Ticket de Servicios</h3>
 
-      <div className="ts-meta">
-        <div><strong>Emitido:</strong> {fechaEmision.toLocaleString()}</div>
-        {cliente && (
-          <div><strong>Cliente:</strong> {cliente.nombre} {cliente.apellido_paterno}</div>
-        )}
+      <div className="ticket-section">
+        <strong>Emitido:</strong> {fechaEmision.toLocaleString()}
       </div>
 
-      <ul className="ts-list">
-        {detalles.map(d => (
-          <li key={d.id} className="ts-item">
-            <div className="ts-item-info">
-              <span className="ts-item-name">{d.servicio.nombre}</span>
-              <span className="ts-item-date">Servicio: {new Date(d.fecha_servicio).toLocaleString()}</span>
-            </div>
-            <span className="ts-item-price">${d.servicio.precio.toFixed(2)}</span>
-          </li>
-        ))}
-      </ul>
+      {cliente && (
+        <div className="ticket-section">
+          <strong>Cliente:</strong> {cliente.nombre} {cliente.apellido_paterno}
+        </div>
+      )}
 
-      <div className="ts-total">
-        <strong>Total: ${total.toFixed(2)}</strong>
+      <div className="ticket-section">
+        <strong>Detalles:</strong>
+        <ul>
+          {detalles.map(d => (
+            <li key={d.id}>
+              {d.servicio.nombre} — {new Date(d.fecha_servicio).toLocaleString()} — ${d.servicio.precio.toFixed(2)}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <button className="ts-print" onClick={() => window.print()}>
+      <div className="ticket-section">
+        <strong>Total:</strong> ${total.toFixed(2)}
+      </div>
+
+      <button onClick={() => window.print()} className="btn-print">
         Imprimir Ticket
       </button>
     </div>
