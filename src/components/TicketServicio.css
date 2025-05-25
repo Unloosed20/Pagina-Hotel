@@ -1,0 +1,78 @@
+/* TicketServicio.css */
+
+.ts-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Georgia', serif;
+  background-color: #FFF8E7;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ts-header {
+  font-size: 1.8rem;
+  color: #5A4A42;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.ts-list {
+  list-style: none;
+  padding: 0;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.ts-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.ts-item:last-child {
+  border-bottom: none;
+}
+
+.ts-total {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.ts-print {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ts-print:hover {
+  background-color: #B38B2D;
+}
+
+@media (max-width: 768px) {
+  .ts-container {
+    padding: 15px;
+  }
+
+  .ts-header {
+    font-size: 1.5rem;
+  }
+
+  .ts-item {
+    font-size: 0.9rem;
+  }
+
+  .ts-print {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}

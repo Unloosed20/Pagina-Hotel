@@ -1,0 +1,73 @@
+/* OrdenServicio.css */
+
+.os-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.os-title {
+  font-size: 1.8rem;
+  color: #5A4A42;
+  margin-bottom: 16px;
+}
+
+.os-error {
+  color: #dc3545;
+  margin-bottom: 12px;
+}
+
+.os-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.os-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.os-list {
+  max-height: 40vh;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.os-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.os-item:last-child {
+  border-bottom: none;
+}
+
+.os-name {
+  font-weight: bold;
+}
+
+.os-btn {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.os-btn:hover {
+  background-color: #B38B2D;
+}

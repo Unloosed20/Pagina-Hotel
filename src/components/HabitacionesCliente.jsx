@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./HabitacionesCliente.css";
+import Navbar from "./NavBar";
 
 const HabitacionesCliente = () => {
   const [habitaciones, setHabitaciones] = useState([]);
@@ -61,6 +62,7 @@ const HabitacionesCliente = () => {
 
   return (
     <div className="hc-container">
+      <NavBar />
       <h1 className="hc-title">Nuestras Habitaciones</h1>
       {/* Scroll container para cards */}
       <div className="hc-grid" style={{ maxHeight: '80vh', overflowY: 'auto' }}>

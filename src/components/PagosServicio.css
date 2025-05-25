@@ -1,0 +1,69 @@
+/* PagosServicio.css */
+
+.ps-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.ps-title {
+  font-size: 1.8rem;
+  color: #5A4A42;
+  margin-bottom: 16px;
+}
+
+.ps-error {
+  color: #dc3545;
+  margin-bottom: 12px;
+}
+
+.ps-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.ps-container select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.ps-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ps-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.ps-btn:hover:not(:disabled) {
+  background-color: #B38B2D;
+}
+
+@media (max-width: 768px) {
+  .ps-container {
+    padding: 15px;
+  }
+
+  .ps-title {
+    font-size: 1.5rem;
+  }
+
+  .ps-container select,
+  .ps-btn {
+    padding: 10px;
+  }
+}
