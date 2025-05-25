@@ -13,27 +13,63 @@ const GestionMembresias = () => {
   const [form, setForm] = useState({ nombre: "", nivel: "", descuento_porcentaje: "", descripcion: "" });
 
   useEffect(() => {
-    const loadAll = async () => {
-      try {
-        const [memRes, solRes] = await Promise.all([
-          supabase.from("membresias").select("*"),
-          supabase.from("solicitudes_membresias").select(
-            `id, fecha_solicitud, estado, observaciones, cliente:clientes(nombre, apellido_paterno), membresia:membresias(nombre)`
-          )
-        ]);
-        if (memRes.error) throw memRes.error;
-        if (solRes.error) throw solRes.error;
-        setMembresias(memRes.data || []);
-        setSolicitudes(solRes.data || []);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadAll();
+    cargarDatos();
   }, []);
+
+  const cargarDatos = async () => {
+    setLoading(true);
+    try {
+      const [memRes, solRes] = await Promise.all([
+        supabase.from("membresias").select("*"),
+        supabase.from("solicitudes_membresias").select(
+          `id, fecha_solicitud, estado, observaciones, cliente:clientes(nombre, apellido_paterno), membresia:membresias(nombre)`
+        )
+      ]);
+      if (memRes.error) throw memRes.error;
+      if (solRes.error) throw solRes.error;
+      setMembresias(memRes.data || []);
+      setSolicitudes(solRes.data || []);
+    } catch (err) {
+      console.error("Error cargando datos:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async id => {
+    if (!window.confirm("¿Confirmar aprobación de la solicitud?")) return;
+    try {
+      setLoading(true);
+      const { error: resError } = await supabase
+        .from("solicitudes_membresias")
+        .update({ estado: "Aceptada" })
+        .eq("id", id);
+      if (resError) throw resError;
+      cargarDatos();
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleReject = async id => {
+    if (!window.confirm("¿Confirmar rechazo de la solicitud?")) return;
+    try {
+      setLoading(true);
+      const { error: resError } = await supabase
+        .from("solicitudes_membresias")
+        .update({ estado: "Rechazada" })
+        .eq("id", id);
+      if (resError) throw resError;
+      cargarDatos();
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   const openModal = (m = null) => {
     setError(null);
@@ -75,13 +111,11 @@ const GestionMembresias = () => {
       }
       if (res.error) throw res.error;
       alert(isEditing ? "Membresía actualizada" : "Membresía registrada");
-      const { data: updated } = await supabase.from("membresias").select("*");
-      setMembresias(updated || []);
+      cargarDatos();
       closeModal();
     } catch (err) {
       console.error(err);
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -138,7 +172,7 @@ const GestionMembresias = () => {
         <div className="scroll-container">
           <table className="client-table">
             <thead>
-              <tr><th>ID</th><th>Cliente</th><th>Membresía</th><th>Fecha</th><th>Estado</th><th>Obs.</th></tr>
+              <tr><th>ID</th><th>Cliente</th><th>Membresía</th><th>Fecha</th><th>Estado</th><th>Obs.</th><th>Acciones</th></tr>
             </thead>
             <tbody>
               {solicitudes.map(s => {
@@ -152,6 +186,14 @@ const GestionMembresias = () => {
                     <td>{new Date(s.fecha_solicitud).toLocaleString()}</td>
                     <td>{s.estado}</td>
                     <td>{s.observaciones || "-"}</td>
+                    <td>
+                      {s.estado === 'Pendiente' && (
+                        <>
+                          <button onClick={() => handleApprove(s.id)}>Aceptar</button>
+                          <button onClick={() => handleReject(s.id)}>Rechazar</button>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 );
               })}

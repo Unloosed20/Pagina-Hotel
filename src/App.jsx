@@ -34,6 +34,7 @@ import ServiciosCliente from "./components/ServiciosCliente";
 import OrdenServicio from "./components/OrdenServicio";
 import PagosServicio from "./components/PagosServicio";
 import TicketServicio from "./components/TicketServicio";
+import GestionPagos from "./components/GestionPagos";
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
           <Route path="/gestion-servicios" element={<GestionServicios />} />
           <Route path="/gestion-membresias" element={<GestionMembresias />} />
           <Route path="/gestion-reservas" element={<GestionReservas />} />
+          <Route path="/gestion-pagos" element={<GestionReservas />} />
         </Route>
       </Routes>
     </Router>

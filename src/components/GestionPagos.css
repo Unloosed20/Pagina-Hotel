@@ -1,0 +1,164 @@
+/* GestionPagos.css */
+
+body {
+  font-family: 'Georgia', serif;
+  background-color: #FFF8E7;
+  margin: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  color: #5A4A42;
+  margin-bottom: 20px;
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filter label {
+  font-weight: bold;
+  color: #5A4A42;
+}
+
+.filter select {
+  padding: 8px;
+  border: 1px solid #D4AF37;
+  border-radius: 5px;
+  background-color: #FFF8E7;
+}
+
+.add-btn {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background-color: #B38B2D;
+}
+
+.scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.client-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.client-table th,
+.client-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.client-table th {
+  background-color: #D4AF37;
+  color: #FFF8E7;
+}
+
+.client-table td:first-child {
+  font-weight: bold;
+  color: #5A4A42;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 5px 8px;
+  margin: 2px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background-color: #ffc107;
+  color: black;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #F5F5DC;
+  padding: 30px;
+  border-radius: 15px;
+  width: 350px;
+  max-width: 95%;
+  text-align: center;
+}
+
+.modal-content h2 {
+  color: #D4AF37;
+  margin-bottom: 20px;
+}
+
+.modal-content form select,
+.modal-content form .input,
+.modal-content form button {
+  width: 80%;
+  margin: 10px 0;
+}
+
+.modal-content button {
+  padding: 10px;
+  background-color: #D4AF37;
+  color: #FFF8E7;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background-color: #B38B2D;
+}
+
+@media (max-width: 768px) {
+  .filter {
+    flex-direction: column;
+  }
+  .modal-content {
+    width: 95%;
+  }
+}
