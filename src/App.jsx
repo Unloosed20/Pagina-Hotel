@@ -30,6 +30,7 @@ import OrdenCliente from "./components/OrdenCliente";
 import PagosPedido from "./components/PagosPedido";
 import PrivateRoute from "./components/PrivateRoute";
 import TicketPedido from "./components/TicketPedido";
+import ServiciosCliente from "./components/ServiciosCliente";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
           <Route path="/orden-cliente" element={<OrdenCliente />} />
           <Route path="/pagos-pedidos" element={<PagosPedido />} />
           <Route path="/ticket-pedidos" element={<TicketPedido />} />
+          <Route path="/servicio-cliente" element={<ServiciosCliente />} />
         </Route>
 
         {/* Administradores (role_id === 1) */}
