@@ -15,7 +15,8 @@ const GestionServicios = () => {
     precio: "",
     disponible: true,
     imagen_file: null,
-    imagen_url: ""
+    imagen_url: "",
+    preview_url: ""
   });
 
   useEffect(() => {
@@ -25,14 +26,16 @@ const GestionServicios = () => {
 
   const fetchServicios = async () => {
     const { data, error } = await supabase.from("servicios").select("*");
-    if (!error) setServicios(data);
+    if (error) return console.error(error);
+    setServicios(data);
   };
 
   const fetchSolicitudes = async () => {
     const { data, error } = await supabase
       .from("reservas_servicios")
       .select("*, servicio:servicios(nombre), reserva_id, fecha_reserva, fecha_servicio, estado");
-    if (!error) setSolicitudes(data);
+    if (error) return console.error(error);
+    setSolicitudes(data);
   };
 
   const openModal = (serv = null) => {
@@ -45,7 +48,8 @@ const GestionServicios = () => {
         precio: serv.precio,
         disponible: serv.disponible,
         imagen_file: null,
-        imagen_url: serv.imagen_url || ""
+        imagen_url: serv.imagen_url || "",
+        preview_url: serv.imagen_url || ""
       });
     } else {
       setIsEditing(false);
@@ -56,18 +60,29 @@ const GestionServicios = () => {
         precio: "",
         disponible: true,
         imagen_file: null,
-        imagen_url: ""
+        imagen_url: "",
+        preview_url: ""
       });
     }
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
+  const closeModal = () => {
+    setModalOpen(false);
+    setFormData(prev => ({ ...prev, preview_url: "" }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (name === "imagen_file") {
-      setFormData(prev => ({ ...prev, imagen_file: files[0] }));
+    if (name === "imagen_file" && files.length) {
+      const file = files[0];
+      setFormData(prev => ({ ...prev, imagen_file: file }));
+      // Generar preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, preview_url: reader.result }));
+      };
+      reader.readAsDataURL(file);
     } else if (type === "checkbox") {
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
@@ -89,14 +104,19 @@ const GestionServicios = () => {
         .upload(fileName, formData.imagen_file, { upsert: true });
 
       if (uploadError) {
-        return alert("Error subiendo imagen: " + uploadError.message);
+        alert("Error subiendo imagen: " + uploadError.message);
+        return;
       }
 
-      const { data: publicData } = supabase
+      const { data: publicData, error: publicError } = await supabase
         .storage
         .from("servicios")
         .getPublicUrl(fileName);
 
+      if (publicError) {
+        alert("Error obteniendo URL pública: " + publicError.message);
+        return;
+      }
       url = publicData.publicUrl;
     }
 
@@ -150,8 +170,10 @@ const GestionServicios = () => {
               {servicios.map(s => (
                 <tr key={s.id}>
                   <td>
-                    {s.imagen_url && (
+                    {s.imagen_url ? (
                       <img src={s.imagen_url} alt={s.nombre} className="thumb" />
+                    ) : (
+                      <span>No hay imagen</span>
                     )}
                   </td>
                   <td>{s.nombre}</td>
@@ -210,12 +232,14 @@ const GestionServicios = () => {
                 onChange={handleChange}
                 required
               />
+
               <textarea
                 name="descripcion"
                 placeholder="Descripción"
                 value={formData.descripcion}
                 onChange={handleChange}
               />
+
               <input
                 name="precio"
                 type="number"
@@ -225,6 +249,7 @@ const GestionServicios = () => {
                 onChange={handleChange}
                 required
               />
+
               <label className="checkbox-label">
                 <input
                   name="disponible"
@@ -233,6 +258,7 @@ const GestionServicios = () => {
                   onChange={handleChange}
                 /> Disponible
               </label>
+
               <label>Imagen del Servicio:</label>
               <input
                 type="file"
@@ -240,8 +266,15 @@ const GestionServicios = () => {
                 accept="image/*"
                 onChange={handleChange}
               />
-              <button type="submit">Guardar</button>
-              <button type="button" onClick={closeModal}>Cancelar</button>
+
+              {formData.preview_url && (
+                <div style={{ margin: '10px 0' }}>
+                  <img src={formData.preview_url} alt="Preview" className="thumb" />
+                </div>
+              )}
+
+              <button type="submit" className="save-btn">Guardar</button>
+              <button type="button" onClick={closeModal} className="cancel-btn">Cancelar</button>
             </form>
           </div>
         </div>
