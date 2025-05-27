@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./OrdenCliente.css";
+import NavBar from "./NavBar";
 
 const OrdenCliente = () => {
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ const OrdenCliente = () => {
 
   return (
     <div className="oc-container">
+      <NavBar />
       <h1 className="oc-title">Tu Pedido</h1>
       {cart.length === 0 ? (
         <p>No hay items en tu pedido.</p>

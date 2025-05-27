@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import './PerfilCliente.css';
+import NavBar from './NavBar';
 
 const PerfilCliente = () => {
   const [cliente, setCliente] = useState(null);
@@ -93,6 +94,7 @@ const PerfilCliente = () => {
 
   return (
     <div className="pc-container">
+      <NavBar />
       <div className="pc-header">
         <h1>Perfil del Cliente</h1>
       </div>

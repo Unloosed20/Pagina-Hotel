@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Pagos.css"; // Puede compartir estilos con Pagos
+import NavBar from "./NavBar";
 
 const PagosPedido = () => {
   const { pedido, total } = useLocation().state || {};
@@ -70,6 +71,7 @@ const PagosPedido = () => {
 
   return (
     <div className="pagos-container">
+      <NavBar />
       <h2>Pago de Pedido #{pedido?.id}</h2>
       <p>Total: <strong>${total.toFixed(2)}</strong></p>
       <div className="metodo-group">
