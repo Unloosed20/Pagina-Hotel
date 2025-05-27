@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import './OrdenServicio.css';
+import NavBar from './NavBar';
 
 const OrdenServicio = () => {
   const [cart, setCart] = useState([]);
@@ -63,6 +64,7 @@ const OrdenServicio = () => {
 
   return (
     <div className="os-container">
+      <NavBar />
       <h1 className="os-title">Confirmar Reserva de Servicios</h1>
       {error && <p className="os-error">{error}</p>}
 

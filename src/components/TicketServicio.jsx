@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import './Ticket.css';
+import NavBar from './NavBar';
 
 const TicketServicio = () => {
   const navigate = useNavigate();
@@ -61,6 +62,7 @@ const TicketServicio = () => {
 
   return (
     <div className="ticket-container">
+      <NavBar />
       <h2>Hotel “Punta Arena”</h2>
       <h3>Ticket de Servicios</h3>
 

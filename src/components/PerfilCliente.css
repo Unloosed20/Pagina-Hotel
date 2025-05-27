@@ -19,6 +19,7 @@ body {
 }
 
 .pc-header h1 {
+  margin-top: 300px;
   color: #D4AF37;
   font-size: 36px;
   font-family: 'Playfair Display', serif;
