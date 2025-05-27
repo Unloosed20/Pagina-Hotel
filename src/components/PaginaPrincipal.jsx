@@ -26,8 +26,6 @@ const PaginaPrincipal = () => {
             <button className="cta-button" onClick={handleReservarClick}>
               Reservar Ahora
             </button>
-            <button className="cta-button">Más Información</button>
-            <button className="cta-button">Contacto</button>
           </div>
         </div>
       </section>

@@ -83,12 +83,10 @@ const Login = () => {
         <button type="submit">Login</button>
       </form>
       <div className="options">
-        <a href="#">¿Perdiste tu contraseña?</a>
         <Link to="/registro-clientes" className="text-blue-500 hover:underline">
           No tienes cuenta? Regístrate
         </Link>
       </div>
-      <a href="#" className="back-link">Volver</a>
     </div>
   );
 };
