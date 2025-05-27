@@ -17,7 +17,7 @@ body {
   margin-bottom: 20px;
 }
 
-/* Scroll independiente para el filtro */
+/* Wrapper para el filtro con scroll horizontal */
 .gp-filter-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -44,7 +44,7 @@ body {
   min-width: 120px;
 }
 
-/* Scroll independiente para la tabla */
+/* Wrapper para la tabla con scroll independiente */
 .gp-table-container {
   width: 100%;
   max-height: 60vh;
@@ -55,11 +55,12 @@ body {
   border-radius: 5px;
 }
 
+/* Tabla en bloque con ancho según contenido */
 .gp-table {
-  display: inline-table;
-  border-collapse: collapse;
+  display: block;
+  width: max-content;
   min-width: 600px;
-  /* ancho automático para respetar min-width */
+  border-collapse: collapse;
 }
 
 .gp-table th,
@@ -80,10 +81,9 @@ body {
   color: #5A4A42;
 }
 
-/* Ajustes para tablets y pantallas medianas */
+/* Ajustes para pantallas medianas */
 @media (max-width: 768px) {
   .gp-filter {
-    display: inline-flex;
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -109,7 +109,6 @@ body {
     min-width: auto;
   }
   .gp-table {
-    /* en móvil forzamos ancho mínimo para permitir scroll */
     min-width: 600px;
   }
   .gp-table th,
@@ -121,3 +120,4 @@ body {
     max-height: 40vh;
   }
 }
+
