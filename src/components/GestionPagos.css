@@ -42,19 +42,21 @@ body {
 /* Contenedor de scroll para la tabla de pagos */
 .gp-table-container {
   width: 100%;
-  max-height: 60vh;        /* Limita la altura para no desbordar verticalmente */
-  overflow: auto;          /* Scroll vertical y horizontal */
-  -webkit-overflow-scrolling: touch;
+  max-height: 60vh;       /* Limita la altura para scroll vertical */
+  overflow: auto;         /* Scroll vertical y horizontal cuando haga falta */
+  -webkit-overflow-scrolling: touch; 
   margin-top: 10px;
-  border: 1px solid #ddd;  /* Borde ligero para delimitar */
+  border: 1px solid #ddd;
   border-radius: 5px;
 }
 
+/* Haz que la tabla crezca al tamaño de sus columnas */
 .gp-table {
-  width: 100%;
-  min-width: 600px;        /* Anchura mínima para legibilidad en PC */
+  display: inline-table;  /* Se expande al ancho necesario */
+  min-width: 600px;       /* Para escritorio */
   border-collapse: collapse;
 }
+
 
 .gp-table th,
 .gp-table td {
