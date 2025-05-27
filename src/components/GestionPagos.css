@@ -1,5 +1,3 @@
-/* GestionPagos.css */
-
 body {
   font-family: 'Georgia', serif;
   background-color: #FFF8E7;
@@ -8,7 +6,7 @@ body {
 
 .gp-container {
   max-width: 1200px;
-  margin: auto;
+  margin: 0 auto;
   padding: 20px;
   text-align: center;
 }
@@ -19,12 +17,18 @@ body {
   margin-bottom: 20px;
 }
 
-.gp-filter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
+/* Scroll independiente para el filtro */
+.gp-filter-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 20px;
+}
+
+.gp-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .gp-filter label {
@@ -37,20 +41,16 @@ body {
   border: 1px solid #D4AF37;
   border-radius: 5px;
   background-color: #FFF8E7;
+  min-width: 120px;
 }
 
-/* El wrapper que engloba filtro + tabla */
-.gp-scroll-wrapper {
-  width: 100%;
-  overflow: auto;                /* scroll X e Y si hace falta */
-  -webkit-overflow-scrolling: touch;
-}
-
-/* La tabla, igual que antes, crece según columnas */
+/* Scroll independiente para la tabla */
 .gp-table-container {
-  display: inline-block;         /* inline para scroll horizontal conjunto */
-  max-height: 60vh;              
-  overflow: hidden;              /* vertical/horiz. los gestiona gp-scroll-wrapper */
+  width: 100%;
+  max-height: 60vh;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #ddd;
   border-radius: 5px;
 }
@@ -58,15 +58,16 @@ body {
 .gp-table {
   display: inline-table;
   min-width: 600px;
+  width: 100%;
   border-collapse: collapse;
 }
-
 
 .gp-table th,
 .gp-table td {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .gp-table th {
@@ -79,18 +80,43 @@ body {
   color: #5A4A42;
 }
 
-/* Ajustes para móviles */
+/* Ajustes para tablets y pantallas medianas */
 @media (max-width: 768px) {
   .gp-filter {
-    flex-direction: column;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-}
-
-@media (max-width: 480px) {
-  .gp-table {
-    min-width: 100%;
+  .gp-filter select {
+    flex: 1 0 45%;
   }
   .gp-table-container {
     max-height: 50vh;
+  }
+}
+
+/* Ajustes para móviles */
+@media (max-width: 480px) {
+  .gp-container h1 {
+    font-size: 1.5rem;
+  }
+  .gp-filter {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .gp-filter select {
+    width: 100%;
+    min-width: auto;
+  }
+  .gp-table {
+    min-width: 100%;
+  }
+  .gp-table th,
+  .gp-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+  .gp-table-container {
+    max-height: 40vh;
   }
 }

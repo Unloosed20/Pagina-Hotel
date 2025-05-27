@@ -90,18 +90,27 @@ const GestionPagos = () => {
   return (
     <div className="gp-container">
       <h1>Gestión de Pagos</h1>
-      <div className="gp-scroll-wrapper">
-      <div className="gp-filter">
-        <label>Filtrar por Cliente:</label>
-        <select value={clienteFilter} onChange={handleFilterChange}>
-          <option value="">Todos</option>
-          {clientes.map(c => (
-            <option key={c.id} value={c.id}>
-              {`${c.nombre} ${c.apellido_paterno}`}
-            </option>
-          ))}
-        </select>
+
+      {/* Scroll independiente para el filtro */}
+      <div className="gp-filter-wrapper">
+        <div className="gp-filter">
+          <label htmlFor="clienteFilter">Filtrar por Cliente:</label>
+          <select
+            id="clienteFilter"
+            value={clienteFilter}
+            onChange={handleFilterChange}
+          >
+            <option value="">Todos</option>
+            {clientes.map(c => (
+              <option key={c.id} value={c.id}>
+                {`${c.nombre} ${c.apellido_paterno}`}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      {/* Scroll independiente para la tabla */}
       <div className="gp-table-container">
         <table className="gp-table">
           <thead>
@@ -117,7 +126,9 @@ const GestionPagos = () => {
           <tbody>
             {pagosFiltrados.map(p => {
               const cliente = clientes.find(c => c.id === p.cliente_id);
-              const clienteNombre = cliente ? `${cliente.nombre} ${cliente.apellido_paterno}` : '-';
+              const clienteNombre = cliente
+                ? `${cliente.nombre} ${cliente.apellido_paterno}`
+                : '-';
               return (
                 <tr key={`${p.origen}-${p.id}`}>
                   <td>{p.id}</td>
@@ -131,7 +142,6 @@ const GestionPagos = () => {
             })}
           </tbody>
         </table>
-      </div>
       </div>
     </div>
   );
