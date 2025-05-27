@@ -90,6 +90,7 @@ const GestionPagos = () => {
   return (
     <div className="gp-container">
       <h1>Gestión de Pagos</h1>
+      <div className="gp-scroll-wrapper">
       <div className="gp-filter">
         <label>Filtrar por Cliente:</label>
         <select value={clienteFilter} onChange={handleFilterChange}>
@@ -130,6 +131,7 @@ const GestionPagos = () => {
             })}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );

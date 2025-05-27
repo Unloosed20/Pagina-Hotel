@@ -39,21 +39,25 @@ body {
   background-color: #FFF8E7;
 }
 
-/* Contenedor de scroll para la tabla de pagos */
-.gp-table-container {
+/* El wrapper que engloba filtro + tabla */
+.gp-scroll-wrapper {
   width: 100%;
-  max-height: 60vh;       /* Limita la altura para scroll vertical */
-  overflow: auto;         /* Scroll vertical y horizontal cuando haga falta */
-  -webkit-overflow-scrolling: touch; 
-  margin-top: 10px;
+  overflow: auto;                /* scroll X e Y si hace falta */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* La tabla, igual que antes, crece según columnas */
+.gp-table-container {
+  display: inline-block;         /* inline para scroll horizontal conjunto */
+  max-height: 60vh;              
+  overflow: hidden;              /* vertical/horiz. los gestiona gp-scroll-wrapper */
   border: 1px solid #ddd;
   border-radius: 5px;
 }
 
-/* Haz que la tabla crezca al tamaño de sus columnas */
 .gp-table {
-  display: inline-table;  /* Se expande al ancho necesario */
-  min-width: 600px;       /* Para escritorio */
+  display: inline-table;
+  min-width: 600px;
   border-collapse: collapse;
 }
 
