@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './PagosServicio.css';
+import NavBar from './NavBar';
 
 const PagosServicio = () => {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const PagosServicio = () => {
 
   return (
     <div className="ps-container">
+      <NavBar />
       <h1 className="ps-title">Pago de Servicios</h1>
       {error && <p className="ps-error">{error}</p>}
       <label htmlFor="metodo">Método de Pago:</label>
