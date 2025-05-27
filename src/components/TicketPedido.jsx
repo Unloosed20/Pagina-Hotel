@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Ticket.css";
-import Navbar from "./NavBar";
-
+import NavBar from "./NavBar";
 const TicketPedido = () => {
   const navigate = useNavigate();
   const { pedidoId } = useLocation().state || {};
