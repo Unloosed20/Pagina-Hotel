@@ -57,9 +57,9 @@ body {
 
 .gp-table {
   display: inline-table;
-  min-width: 600px;
-  width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
+  /* ancho automático para respetar min-width */
 }
 
 .gp-table th,
@@ -109,7 +109,8 @@ body {
     min-width: auto;
   }
   .gp-table {
-    min-width: 100%;
+    /* en móvil forzamos ancho mínimo para permitir scroll */
+    min-width: 600px;
   }
   .gp-table th,
   .gp-table td {
